@@ -44,6 +44,20 @@ export default function SignUp() {
       return;
     }
 
+    if (data?.user) {
+      // Save user to MongoDB
+      await fetch("/api/saveUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          supabaseId: data.user.id
+        })
+      });
+    }
+
     if (data?.user && !data?.session) {
       setServerMsg("Check your inbox to confirm your email and complete sign up.");
       reset({ name: "", email: "", password: "", confirmPassword: "", phone: "" });
