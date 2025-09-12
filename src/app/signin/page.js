@@ -1,42 +1,22 @@
-//signin page
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { supabase } from "../../../lib/supabaseClient";
 import { FaLock, FaLockOpen, FaGoogle, FaDiscord } from "react-icons/fa";
-import { upsertProfileFromAuthUser } from "../../../lib/upsertProfile";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useSignIn } from "@clerk/nextjs";
 
 export default function SignIn() {
   const [oauthLoading, setOauthLoading] = useState(null); // "google" | "discord" | null
+  const router = useRouter();
+  const { isLoaded, signIn, setActive } = useSignIn();
 
-  const handleOAuth = async (provider) => {
-    try {
-      setServerMsg("");
-      setOauthLoading(provider);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider, // "google" | "discord"
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          scopes: provider === "google" ? "openid email profile" : "identify email",
-        },
-      });
-      if (error) setError("root", { message: error.message });
-    } catch (e) {
-      setError("root", { message: e?.message ?? "OAuth failed" });
-    } finally {
-      setOauthLoading(null);
-    }
-  };
-
-  // const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isLoading },
     setError,
     reset,
     setFocus,
@@ -48,30 +28,50 @@ export default function SignIn() {
   const inputBase =
     "w-full rounded-lg border bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-900 hover:border-neutral-900 transition-all";
 
-  const onSubmit = async (values) => {
-    setServerMsg("");
-    const { email, password } = values;
-
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError("root", { message: error.message });
-      return;
-    }
-
-    if (data?.user) {
-      await upsertProfileFromAuthUser();
-      setServerMsg("Signed in successfully!");
-      reset({ email: "", password: "" });
-      // router.push("/"); // optional redirect
-    }
-  };
   useEffect(() => {
     setFocus("email");
   }, [setFocus]);
+
+  if (isLoading || !isLoaded) {
+    return <div className="text-center p-5 text-2xl text-neutral-500 bg-white w-full h-screen">Loading form...</div>;
+  }
+
+  const onSubmit = async (values) => {
+    setServerMsg("");
+
+    try {
+      const res = await signIn.create({
+        identifier: values.email,
+        password: values.password,
+      });
+
+      if (res?.status === "complete" && res?.createdSessionId) {
+        await setActive({ session: res.createdSessionId });
+        router.push("/");
+      } else {
+        setServerMsg("Additional step required. Check your email or follow the next step.");
+      }
+    } catch (err) {
+      const msg = err?.errors?.[0]?.longMessage || err?.message || "Invalid email or password.";
+      setError("root", { message: msg });
+    }
+  };
+
+  const handleOAuth = async (provider) => {
+    setServerMsg("");
+    setOauthLoading(provider);
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: provider === "google" ? "oauth_google" : "oauth_discord",
+        redirectUrl: "/",
+        redirectUrlComplete: "/",
+      });
+    } catch (err) {
+      const msg = err?.errors?.[0]?.longMessage || err?.message || "OAuth failed";
+      setError("root", { message: msg });
+      setOauthLoading(null);
+    }
+  };
 
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center bg-white">
@@ -82,7 +82,6 @@ export default function SignIn() {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border">
         <h1 className="text-3xl font-semibold mb-5 text-black text-center">Log in to your account</h1>
 
-        {/* Email */}
         <label className="block mb-2 text-sm font-medium text-black" htmlFor="email">
           Email
         </label>
@@ -93,15 +92,11 @@ export default function SignIn() {
           className={`${inputBase} ${errors.email ? "border-red-500" : "border-neutral-300"}`}
           {...register("email", {
             required: "Email is required",
-            pattern: {
-              value: /\S+@\S+\.\S+/,
-              message: "Enter a valid email",
-            },
+            pattern: { value: /\S+@\S+\.\S+/, message: "Enter a valid email" },
           })}
         />
         {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
 
-        {/* Password */}
         <label className="block mt-4 mb-2 text-sm font-medium text-black" htmlFor="password">
           Password
         </label>
@@ -123,15 +118,13 @@ export default function SignIn() {
             className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-2 text-neutral-600 hover:bg-neutral-100 focus:outline-none"
             title={passwordShow ? "Hide password" : "Show password"}
           >
-            {passwordShow ? <FaLockOpen /> : <FaLock />}
+            <FaLockOpen style={{ display: passwordShow ? "block" : "none" }} />
+            <FaLock style={{ display: passwordShow ? "none" : "block" }} />
           </button>
         </div>
         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
 
-        {/* Root/server error */}
         {errors.root && <p className="mt-3 text-sm text-red-600">{errors.root.message}</p>}
-
-        {/* Server message */}
         {serverMsg && <p className="mt-3 text-sm text-emerald-700">{serverMsg}</p>}
 
         <button
@@ -143,14 +136,12 @@ export default function SignIn() {
           {isSubmitting ? "Signing in..." : "Log In"}
         </button>
 
-        {/* Divider */}
         <div className="my-2 flex items-center gap-3">
           <div className="h-px flex-1 bg-neutral-200" />
           <span className=" text-neutral-500">or</span>
           <div className="h-px flex-1 bg-neutral-200" />
         </div>
 
-        {/* Social OAuth */}
         <div className="grid grid-cols-2 gap-3  items-center content-center justify-center justify-items-center">
           <button
             type="button"
@@ -176,12 +167,6 @@ export default function SignIn() {
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="underline text-gray-500">
             Create one
-          </Link>
-        </p>
-
-        <p className="mt-2  text-sm text-center text-gray-500">
-          <Link href="/forgot-password" className="underline">
-            Forgot your password?
           </Link>
         </p>
       </form>

@@ -1,11 +1,15 @@
 // src/components/Item.jsx
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaRegStar, FaStar } from "react-icons/fa";
+import FavoriteButton from "@/app/product/[id]/FavoriteButton";
 
 export default function Item({ id, title, category, image, price, onAddToCart, detailsHref }) {
   const detailsUrl = detailsHref ?? (id ? `/product/${id}` : "#");
   const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(false);
   const handleCardClick = () => {
     if (detailsUrl) router.push(detailsUrl);
   };
@@ -16,6 +20,8 @@ export default function Item({ id, title, category, image, price, onAddToCart, d
       router.push(detailsUrl);
     }
   };
+
+  const product = { id, title, category, image, price };
 
   return (
     <article
@@ -40,19 +46,9 @@ export default function Item({ id, title, category, image, price, onAddToCart, d
         {category && <p className="mt-1 text-sm text-neutral-500">{category}</p>}
 
         <div className="mt-3 flex items-center ">
-          <div className="flex items-center justify-center gap-12 w-full">
+          <div className="flex items-center justify-center gap-20 w-full">
             <p className="text-xs  text-neutral-500 font-semibold select-none">${price}</p>
-            <button
-              title="Add to Cart"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToCart?.();
-              }}
-              className="rounded-lg bg-black px-3 py-1.5 text-sm text-white transition hover:opacity-90 active:translate-y-px cursor-pointer"
-            >
-              Add to Cart
-            </button>
+            <FavoriteButton product={product} />
           </div>
         </div>
       </div>

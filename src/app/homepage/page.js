@@ -1,22 +1,28 @@
+//homepage.js
+"use client";
+
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductPage from "@/app/product/[id]/page";
 import ProductsPage from "@/app/products/page";
 import SideBar from "@/components/SideBar";
+import { useState } from "react";
 
 export default function Homepage() {
+  const [filters, setFilters] = useState({ q: "", categories: [], min: null, max: null });
+  const [products, setProducts] = useState([]);
+
+  const showItems = (items) => setProducts(items);
+
   return (
-    <div className="p-2 bg-white w-full h-full">
+    <div className="px-2 bg-white w-full h-full">
       <Header />
       <main className="grid grid-cols-1 md:grid-cols-5 gap-4 my-4">
         <div className="md:col-span-1">
-          <SideBar />
+          <SideBar onApply={setFilters} />
         </div>
         <section className="md:col-span-4">
-          <ProductsPage />
+          <ProductsPage onLoad={showItems} filters={filters} />
         </section>
       </main>
       <Footer />

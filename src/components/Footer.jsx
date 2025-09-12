@@ -5,10 +5,10 @@ import Image from "next/image";
 import { FaInstagram, FaTwitter, FaGithub } from "react-icons/fa";
 
 export default function Footer() {
+  // Navigation links
   const shop = [
     { name: "Products", href: "/products" },
     { name: "Create new listing", href: "/createItem" },
-    { name: "Cart", href: "/cart" },
   ];
 
   const support = [
