@@ -1,33 +1,30 @@
 // app/product/[id]/page.js
-//server component
-
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import FavoriteButton from "../../../components/FavoriteButton";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import OfferActionsClient from "@/components/OfferActionsClient"; // ⬅️ add this
 
 export default async function ProductPage({ params }) {
   const { id } = params;
 
-  //fetching item by id
   const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
     next: { revalidate: 60 },
   });
-
-  if (!res.ok) {
-    notFound();
-  }
+  if (!res.ok) notFound();
 
   const p = await res.json();
+
   return (
-    <div className=" w-screen h-full min-h-screen px-4 bg-white">
+    <div className=" h-full min-h-screen  bg-white">
       <Header />
-      <Link href="/" className=" text-neutral-600 hover:underline">
-        Back to products
-      </Link>
+      <div className="m-3">
+        <Link href="/" className="text-neutral-600 hover:underline ">
+          Back to products
+        </Link>
+      </div>
 
       <div className="mt-4 grid gap-6 md:grid-cols-2">
         {/* Image */}
@@ -53,15 +50,19 @@ export default async function ProductPage({ params }) {
             </p>
           )}
           <p className="text-neutral-700 leading-relaxed">{p.description}</p>
+
           <div className="flex gap-6 items-center">
-            <button className=" rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 active:translate-y-px cursor-pointer hover:scale-103">
-              Send Offer
-            </button>
-            <button className=" rounded-xl bg-white px-4 py-2.5 text-sm font-medium  transition hover:opacity-90 active:translate-y-px cursor-pointer hover:scale-103 text-black border border-neutral-400 hover:border-neutral-900">
-              Send Message
-            </button>
+            {/* Actions (client) */}
+            <OfferActionsClient
+              item={{
+                id: p.id,
+                title: p.title,
+                price: p.price,
+                image: p.image,
+                description: p.description,
+              }}
+            />
             <FavoriteButton />
-            <button>Sign in to favorite</button>
           </div>
         </div>
       </div>
