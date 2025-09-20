@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import FavoriteButton from "../../../components/FavoriteButton";
-import OfferActionsClient from "@/components/OfferActionsClient"; // ⬅️ add this
+import OfferActionsClient from "@/components/OfferActionsClient";
 
 export default async function ProductPage({ params }) {
   const { id } = params;
@@ -51,7 +51,7 @@ export default async function ProductPage({ params }) {
           )}
           <p className="text-neutral-700 leading-relaxed">{p.description}</p>
 
-          <div className="flex gap-6 items-center">
+          <div className="flex gap-4 items-center">
             {/* Actions (client) */}
             <OfferActionsClient
               item={{
@@ -62,7 +62,7 @@ export default async function ProductPage({ params }) {
                 description: p.description,
               }}
             />
-            <FavoriteButton />
+            <FavoriteButton product={p} />
           </div>
         </div>
       </div>
