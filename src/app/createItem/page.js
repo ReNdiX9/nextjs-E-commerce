@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import ImageUploading from "../addingpictures/page";
+import ImageUploading from "../addingimages/page";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
