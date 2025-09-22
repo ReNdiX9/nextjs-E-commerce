@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import ImageUploading from "../addingpictures/page";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -7,6 +8,7 @@ export default function CreateItemPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,8 +24,13 @@ export default function CreateItemPage() {
     }
 
     // this should be corrected
-    if (price <= 0 || price === "") {
+    if (Number(price) <= 0 || price === "") {
       alert("Please enter a valid price 0 or higher");
+      return;
+    }
+
+    if (!image) {
+      alert("Please select an image");
       return;
     }
 
@@ -43,6 +50,7 @@ export default function CreateItemPage() {
       setName("");
       setDescription("");
       setPrice("");
+      setImage("");
     }, 1000);
   };
 
@@ -90,6 +98,10 @@ export default function CreateItemPage() {
                 className="w-full px-3 py-3 border border-gray-300 rounded text-black text-lg"
                 placeholder="price"
               />
+            </div>
+
+            <div>
+              <ImageUploading onImageSelect={(file) => setImage(file)} />
             </div>
 
             {/* Submit Button */}
