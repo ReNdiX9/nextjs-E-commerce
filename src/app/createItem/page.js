@@ -23,7 +23,6 @@ export default function CreateItemPage() {
       return;
     }
 
-    // this should be corrected
     if (Number(price) <= 0 || price === "") {
       alert("Please enter a valid price 0 or higher");
       return;
@@ -93,7 +92,6 @@ export default function CreateItemPage() {
                 type="number"
                 value={price}
                 min="0"
-                step="0.01"
                 onChange={(e) => setPrice(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded text-black text-lg"
                 placeholder="price"
