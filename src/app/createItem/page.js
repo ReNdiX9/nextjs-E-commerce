@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import ImageUploading from "../addingimages/page";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -76,7 +75,6 @@ export default function CreateItemPage() {
                 placeholder="name"
               />
             </div>
-
             <div>
               <input
                 type="text"
@@ -86,7 +84,6 @@ export default function CreateItemPage() {
                 placeholder="description"
               />
             </div>
-
             <div>
               <input
                 type="number"
@@ -97,11 +94,6 @@ export default function CreateItemPage() {
                 placeholder="price"
               />
             </div>
-
-            <div>
-              <ImageUploading onImageSelect={(file) => setImage(file)} />
-            </div>
-
             {/* Submit Button */}
             <div className="pt-2">
               <button
