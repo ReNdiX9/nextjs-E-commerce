@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
-
+import Footer from "@/components/Footer";
 const LS_KEY = "settings";
 
 export default function Settings() {
@@ -123,6 +123,7 @@ export default function Settings() {
                 </div>
               </div>
 
+
               {/* Sign Out Section */}
               <div className="text-center">
                 <button
@@ -149,6 +150,8 @@ export default function Settings() {
           </div>
         </div>
       </main>
+        <Footer />
     </div>
+    
   );
 }

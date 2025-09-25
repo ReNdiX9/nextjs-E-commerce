@@ -23,9 +23,7 @@ export default function Header() {
         </Link>
       </div>
       
-      <ThemeToggle />
-      
-      <nav>
+      <nav className="flex items-center gap-6">
         <ul className="flex items-center gap-10">
           {publicLinks.map(({ name, link }) => (
             <li key={link}>
@@ -57,6 +55,11 @@ export default function Header() {
             </li>
           </SignedOut>
         </ul>
+        
+        {/* Theme Toggle positioned after navigation */}
+        <div className="flex items-center">
+          <ThemeToggle />
+        </div>
       </nav>
     </header>
   );
