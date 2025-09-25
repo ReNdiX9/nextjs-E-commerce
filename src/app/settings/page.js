@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 const LS_KEY = "settings";
 
 export default function Settings() {
@@ -72,15 +73,17 @@ export default function Settings() {
           <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
             <h2 className="text-2xl font-bold mb-6 text-text-primary text-center">Account Settings</h2>
 
-            <div className="space-y-6">
-              {/* User Profile Section */}
-              <div className="border-b border-card-border pb-6">
-                <h3 className="text-lg font-semibold mb-4 text-text-primary">Profile</h3>
-                <div className="flex items-center justify-center">
-                  <UserButton />
-                </div>
-              </div>
+            {/* Navigation to Profile */}
+            <div className="mb-6 text-center">
+              <Link 
+                href="/settings/profile"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-text-primary text-background rounded-lg hover:opacity-90 transition-opacity font-medium"
+              >
+                👤 View Profile
+              </Link>
+            </div>
 
+            <div className="space-y-6">
               {/* Email Update Section */}
               <div className="border-b border-card-border pb-6">
                 <h3 className="text-lg font-semibold mb-4 text-text-primary">Update Email</h3>
