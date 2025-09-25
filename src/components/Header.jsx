@@ -12,6 +12,7 @@ export default function Header() {
     { name: "Create New  Listing", link: "/createItem" },
     { name: "My Listings", link: "/mylistings" },
     { name: "Favorites", link: "/myfavorites" },
+    { name: "Profile", link: "/settings/profile" },
     { name: "Settings", link: "/settings" },
   ];
 
