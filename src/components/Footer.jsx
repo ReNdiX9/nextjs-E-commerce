@@ -53,11 +53,11 @@ export default function Footer() {
           <NavColumn title="Support" items={support} />
         </div>
 
-        <div className="mt-8  border-t pt-6 flex flex-col gap-8 md:flex-row md:items-center md:justify-between text-neutral-500 justify-center items-center">
+        <div className="mt-8 border-t border-card-border pt-6 flex flex-col gap-8 md:flex-row md:items-center md:justify-between text-text-secondary justify-center items-center">
           <p>© {new Date().getFullYear()} ShopEase. All rights reserved.</p>
           <nav className="flex flex-wrap gap-4">
             {legal.map(({ name, href }) => (
-              <Link key={href} href={href} className="hover:text-neutral-900 ">
+              <Link key={href} href={href} className="hover:text-text-primary">
                 {name}
               </Link>
             ))}
@@ -71,11 +71,11 @@ export default function Footer() {
 function NavColumn({ title, items }) {
   return (
     <div>
-      <h4 className="mb-3 text-base font-semibold text-black text-center">{title}</h4>
+      <h4 className="mb-3 text-base font-semibold text-text-primary text-center">{title}</h4>
       <ul className="space-y-2 text-center">
         {items.map(({ name, href }) => (
           <li key={href}>
-            <Link href={href} className="text-neutral-600 hover:text-black">
+            <Link href={href} className="text-text-secondary hover:text-text-primary">
               {name}
             </Link>
           </li>
