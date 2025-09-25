@@ -1,3 +1,4 @@
+// this is ai generated code for now only
 "use client";
 
 import { useEffect, useState } from "react";
