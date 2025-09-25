@@ -70,47 +70,47 @@ export default function Settings() {
   };
 
   if (!ready) {
-    return <div className="p-4">Loading settings…</div>;
+    return <div className="p-4 text-text-primary">Loading settings…</div>;
   }
 
   return (
-    <div className="bg-white min-h-screen w-screen">
+    <div className="bg-background min-h-screen w-screen">
       <Header />
 
       <main className="p-4">
         <section className="max-w-md mx-auto mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-black text-center">Account Settings</h2>
+          <h2 className="text-xl font-semibold mb-4 text-text-primary text-center">Account Settings</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-700">New Email</label>
+              <label className="block text-sm font-medium text-text-primary">New Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 mt-1"
+                className="w-full border border-input-border rounded-md px-3 py-2 mt-1 bg-input-bg text-text-primary"
                 placeholder="Enter new email"
               />
               <button
                 onClick={handleUpdateEmail}
-                className="mt-2 bg-black text-white px-4 py-2 rounded hover:opacity-90"
+                className="mt-2 bg-text-primary text-background px-4 py-2 rounded hover:opacity-90"
               >
                 Update Email
               </button>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-700">New Password</label>
+              <label className="block text-sm font-medium text-text-primary">New Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 mt-1"
+                className="w-full border border-input-border rounded-md px-3 py-2 mt-1 bg-input-bg text-text-primary"
                 placeholder="Enter new password"
               />
               <button
                 onClick={handleUpdatePassword}
-                className="mt-2 bg-black text-white px-4 py-2 rounded hover:opacity-90"
+                className="mt-2 bg-text-primary text-background px-4 py-2 rounded hover:opacity-90"
               >
                 Update Password
               </button>

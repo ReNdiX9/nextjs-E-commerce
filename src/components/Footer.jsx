@@ -23,26 +23,26 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="border-t  text-sm ">
+    <footer className="border-t border-card-border text-sm bg-background">
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3 items-center  place-items-center">
           {/* logo*/}
           <div>
             <Link href="/" className="flex items-center gap-4 justify-center">
               <Image src="/logo.png" alt="ShopEase logo" width={32} height={32} />
-              <span className="text-base font-semibold text-black">ShopEase</span>
+              <span className="text-base font-semibold text-text-primary">ShopEase</span>
             </Link>
-            <p className="mt-3 text-neutral-600">Simple shopping made easy.</p>
+            <p className="mt-3 text-text-secondary">Simple shopping made easy.</p>
 
             {/* Socials */}
-            <div className="mt-4 flex items-center gap-6 text-neutral-600 justify-center">
-              <Link href="https://instagram.com" className="hover:text-black" aria-label="Instagram">
+            <div className="mt-4 flex items-center gap-6 text-text-secondary justify-center">
+              <Link href="https://instagram.com" className="hover:text-text-primary" aria-label="Instagram">
                 <FaInstagram size={24} />
               </Link>
-              <Link href="https://twitter.com" className="hover:text-black" aria-label="Twitter / X">
+              <Link href="https://twitter.com" className="hover:text-text-primary" aria-label="Twitter / X">
                 <FaTwitter size={24} />
               </Link>
-              <Link href="https://github.com" className="hover:text-black" aria-label="GitHub">
+              <Link href="https://github.com" className="hover:text-text-primary" aria-label="GitHub">
                 <FaGithub size={24} />
               </Link>
             </div>

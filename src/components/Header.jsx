@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import ThemeToggle from "./themetoggle";
 
 export default function Header() {
   const publicLinks = [{ name: "Home", link: "/" }];
@@ -15,18 +16,20 @@ export default function Header() {
   ];
 
   return (
-    <header className="flex justify-between px-5 items-center shadow-md py-3">
+    <header className="flex justify-between px-5 items-center shadow-md py-3 bg-background">
       <div>
         <Link href="/">
           <Image src="/logo.png" alt="Logo" width={40} height={40} />
         </Link>
       </div>
-
+      
+      <ThemeToggle />
+      
       <nav>
         <ul className="flex items-center gap-10">
           {publicLinks.map(({ name, link }) => (
             <li key={link}>
-              <Link href={link} className="text-black hover:underline font-bold transition duration-300 ease-in-out">
+              <Link href={link} className="text-text-primary hover:underline font-bold transition duration-300 ease-in-out">
                 {name}
               </Link>
             </li>
@@ -38,7 +41,7 @@ export default function Header() {
                 <Link
                   prefetch={false}
                   href={link}
-                  className="text-black hover:underline font-bold transition duration-300 ease-in-out"
+                  className="text-text-primary hover:underline font-bold transition duration-300 ease-in-out"
                 >
                   {name}
                 </Link>
@@ -48,7 +51,7 @@ export default function Header() {
 
           <SignedOut>
             <li>
-              <Link href="/signin" className="text-black hover:underline font-bold">
+              <Link href="/signin" className="text-text-primary hover:underline font-bold">
                 Sign in
               </Link>
             </li>

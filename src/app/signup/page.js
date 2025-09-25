@@ -27,7 +27,7 @@ export default function SignUp() {
   const [code, setCode] = useState("");
 
   const inputBase =
-    "w-full rounded-lg border bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-900 hover:border-neutral-900 transition-all";
+    "w-full rounded-lg border border-input-border bg-input-bg px-3 py-2 text-text-primary placeholder-text-secondary outline-none focus:border-text-primary hover:border-text-primary transition-all";
 
   //chat gpt generated function
   const onSubmit = async (values) => {
@@ -87,16 +87,16 @@ export default function SignUp() {
   }, [setFocus]);
 
   return (
-    <div className="w-screen min-h-screen flex flex-col items-center justify-center bg-white p-5">
+    <div className="w-screen min-h-screen flex flex-col items-center justify-center bg-background p-5">
       <div className="mb-6">
         <Image alt="Logo" src="/logo.png" width={50} height={50} />
       </div>
 
       {!needCode ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border">
-          <h1 className="text-3xl font-semibold mb-5 text-black text-center">Create an account</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg">
+          <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Create an account</h1>
 
-          <label className="block mb-2 text-sm font-medium text-black" htmlFor="name">
+          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="name">
             Full name
           </label>
           <input
@@ -107,7 +107,7 @@ export default function SignUp() {
             {...register("name", { required: "Full name is required" })}
           />
 
-          <label className="block mb-2 text-sm font-medium text-black" htmlFor="email">
+          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="email">
             Email
           </label>
           <input
@@ -122,7 +122,7 @@ export default function SignUp() {
           />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
 
-          <label className="block mt-4 mb-2 text-sm font-medium text-black" htmlFor="phone">
+          <label className="block mt-4 mb-2 text-sm font-medium text-text-primary" htmlFor="phone">
             Phone number (optional)
           </label>
           <input
@@ -136,7 +136,7 @@ export default function SignUp() {
           />
           {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>}
 
-          <label className="block mt-4 mb-2 text-sm font-medium text-black" htmlFor="password">
+          <label className="block mt-4 mb-2 text-sm font-medium text-text-primary" htmlFor="password">
             Password
           </label>
           <div className="relative">
@@ -163,7 +163,7 @@ export default function SignUp() {
           </div>
           {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
 
-          <label className="block mt-4 mb-2 text-sm font-medium text-black" htmlFor="confirmPassword">
+          <label className="block mt-4 mb-2 text-sm font-medium text-text-primary" htmlFor="confirmPassword">
             Confirm password
           </label>
           <input
@@ -184,23 +184,23 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-5 w-full rounded-lg bg-black text-white py-2 font-medium disabled:opacity-60 hover:scale-103 transition-all cursor-pointer"
+            className="mt-5 w-full rounded-lg bg-text-primary text-background py-2 font-medium disabled:opacity-60 hover:scale-103 transition-all cursor-pointer"
           >
             {isSubmitting ? "Creating..." : "Sign Up"}
           </button>
           <div id="clerk-captcha" className="mt-4" />
-          <p className="mt-3 text-sm text-center text-black">
+          <p className="mt-3 text-sm text-center text-text-primary">
             Already have an account?{" "}
-            <Link href="/signin" className="underline text-gray-500">
+            <Link href="/signin" className="underline text-text-secondary">
               Log in
             </Link>
           </p>
         </form>
       ) : (
-        <form onSubmit={onVerify} className="w-full max-w-sm rounded-2xl p-6 shadow-md border mt-4">
-          <h1 className="text-3xl font-semibold mb-5 text-black text-center">Verify your email</h1>
+        <form onSubmit={onVerify} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg mt-4">
+          <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Verify your email</h1>
 
-          <label className="block mb-2 text-sm font-medium text-black" htmlFor="code">
+          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="code">
             Verification code
           </label>
           <input
@@ -217,7 +217,7 @@ export default function SignUp() {
 
           <button
             type="submit"
-            className="mt-5 w-full rounded-lg bg-black text-white py-2 font-medium hover:scale-103 transition-all cursor-pointer"
+            className="mt-5 w-full rounded-lg bg-text-primary text-background py-2 font-medium hover:scale-103 transition-all cursor-pointer"
           >
             Verify & Continue
           </button>
