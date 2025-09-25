@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { FaRegTrashAlt } from "react-icons/fa";
 import Header from "@/components/Header";
-import { UserProfile, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
 
 const LS_KEY = "settings";
@@ -52,85 +49,105 @@ export default function Settings() {
   };
 
   const handleUpdateEmail = async () => {
-    const { error } = await supabase.auth.updateUser({ email });
-    if (error) {
-      setMessage(`Error updating email: ${error.message}`);
-    } else {
-      setMessage("Email updated successfully!");
-    }
+    // TODO: Implement email update with Clerk
+    setMessage("Email update feature coming soon!");
   };
 
   const handleUpdatePassword = async () => {
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setMessage(`Error updating password: ${error.message}`);
-    } else {
-      setMessage("Password updated successfully!");
-    }
+    // TODO: Implement password update with Clerk
+    setMessage("Password update feature coming soon!");
   };
 
   if (!ready) {
     return <div className="p-4 text-text-primary">Loading settings…</div>;
   }
 
+  // used AI to fix the UI 
   return (
     <div className="bg-background min-h-screen w-screen">
       <Header />
 
       <main className="p-4">
-        <section className="max-w-md mx-auto mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-text-primary text-center">Account Settings</h2>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
+            <h2 className="text-2xl font-bold mb-6 text-text-primary text-center">Account Settings</h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-primary">New Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-input-border rounded-md px-3 py-2 mt-1 bg-input-bg text-text-primary"
-                placeholder="Enter new email"
-              />
-              <button
-                onClick={handleUpdateEmail}
-                className="mt-2 bg-text-primary text-background px-4 py-2 rounded hover:opacity-90"
-              >
-                Update Email
-              </button>
+            <div className="space-y-6">
+              {/* User Profile Section */}
+              <div className="border-b border-card-border pb-6">
+                <h3 className="text-lg font-semibold mb-4 text-text-primary">Profile</h3>
+                <div className="flex items-center justify-center">
+                  <UserButton />
+                </div>
+              </div>
+
+              {/* Email Update Section */}
+              <div className="border-b border-card-border pb-6">
+                <h3 className="text-lg font-semibold mb-4 text-text-primary">Update Email</h3>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-text-primary">New Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full border border-input-border rounded-md px-3 py-2 bg-input-bg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-transparent"
+                    placeholder="Enter new email"
+                  />
+                  <button
+                    onClick={handleUpdateEmail}
+                    className="w-full bg-text-primary text-background px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium"
+                  >
+                    Update Email
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Update Section */}
+              <div className="border-b border-card-border pb-6">
+                <h3 className="text-lg font-semibold mb-4 text-text-primary">Update Password</h3>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-text-primary">New Password</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full border border-input-border rounded-md px-3 py-2 bg-input-bg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-transparent"
+                    placeholder="Enter new password"
+                  />
+                  <button
+                    onClick={handleUpdatePassword}
+                    className="w-full bg-text-primary text-background px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium"
+                  >
+                    Update Password
+                  </button>
+                </div>
+              </div>
+
+              {/* Sign Out Section */}
+              <div className="text-center">
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm text-red-500 hover:text-red-700 underline transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+
+              {/* Message Display */}
+              {message && (
+                <div className="text-center">
+                  <p className={`text-sm mt-4 px-4 py-2 rounded-md ${
+                    message.includes('Error') || message.includes('error') 
+                      ? 'text-red-600 bg-red-50 border border-red-200' 
+                      : 'text-green-600 bg-green-50 border border-green-200'
+                  }`}>
+                    {message}
+                  </p>
+                </div>
+              )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-primary">New Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-input-border rounded-md px-3 py-2 mt-1 bg-input-bg text-text-primary"
-                placeholder="Enter new password"
-              />
-              <button
-                onClick={handleUpdatePassword}
-                className="mt-2 bg-text-primary text-background px-4 py-2 rounded hover:opacity-90"
-              >
-                Update Password
-              </button>
-
-              <li>
-                <UserButton />
-              </li>
-
-              {/* ✅ Sign Out Button */}
-              <button
-                onClick={() => signOut()}
-                className="mt-4 text-sm text-red-500 underline hover:text-red-700"
-              >
-                Sign Out
-              </button>
-            </div>
-
-            {message && <p className="text-center text-sm text-green-600 mt-4">{message}</p>}
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );
