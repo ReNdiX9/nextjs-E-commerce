@@ -4,6 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import ThemeToggle from "./themetoggle";
+// used shadcn ui for dropdown menu and button
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
 
 export default function Header() {
   const publicLinks = [{ name: "Home", link: "/" }];
@@ -24,7 +34,8 @@ export default function Header() {
       </div>
       
       <nav className="flex items-center gap-6">
-        <ul className="flex items-center gap-10">
+        {/* Desktop Navigation */}
+        <ul className="hidden md:flex items-center gap-10">
           {publicLinks.map(({ name, link }) => (
             <li key={link}>
               <Link href={link} className="text-text-primary hover:underline font-bold transition duration-300 ease-in-out">
@@ -55,8 +66,49 @@ export default function Header() {
             </li>
           </SignedOut>
         </ul>
+
+        {/* Mobile Navigation Dropdown */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-text-primary">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {publicLinks.map(({ name, link }) => (
+                <DropdownMenuItem key={link} asChild>
+                  <Link href={link} className="w-full">
+                    {name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+              
+              <SignedIn>
+                <DropdownMenuSeparator />
+                {authedLinks.map(({ name, link }) => (
+                  <DropdownMenuItem key={link} asChild>
+                    <Link href={link} className="w-full">
+                      {name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </SignedIn>
+
+              <SignedOut>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/signin" className="w-full">
+                    Sign in
+                  </Link>
+                </DropdownMenuItem>
+              </SignedOut>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         
-        {/* Theme Toggle positioned after navigation */}
+        {/* Theme Toggle */}
         <div className="flex items-center">
           <ThemeToggle />
         </div>

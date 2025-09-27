@@ -6,6 +6,15 @@ import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import FavoriteButton from "../../../components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
+// used shadcn ui for breadcrumb navigation
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default async function ProductPage({ params }) {
   const { id } = params;
@@ -20,10 +29,30 @@ export default async function ProductPage({ params }) {
   return (
     <div className=" h-full min-h-screen  bg-background">
       <Header />
+      
+      {/* Breadcrumb Navigation */}
       <div className="m-3">
-        <Link href="/" className="text-text-secondary hover:underline ">
-          Back to products
-        </Link>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/" className="text-text-secondary hover:text-text-primary">
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/products" className="text-text-secondary hover:text-text-primary">
+                Products
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-text-primary font-medium">
+                {p.title}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       <div className="mt-4 grid gap-6 md:grid-cols-2">
