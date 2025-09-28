@@ -12,14 +12,14 @@ export default function Footer() {
   ];
 
   const support = [
-    { name: "FAQ", href: "/faq" }, //to be created
-    { name: "Support", href: "/support" }, //to be created
+    { name: "FAQ", href: "/faq" },
+    { name: "Contact Us", href: "/contact" },
   ];
 
   const legal = [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
-    { name: "Contact", href: "/contact" },
+    { name: "Feedback", href: "/feedback" },
   ];
 
   return (
