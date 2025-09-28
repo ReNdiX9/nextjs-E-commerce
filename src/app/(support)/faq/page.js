@@ -104,7 +104,6 @@ export default function FAQPage() {
               className={`overflow-hidden transition-all duration-300 ${
                 open === index ? "max-h-96 py-4 px-8 opacity-100" : "max-h-0 py-0 px-8 opacity-0"
               }`}
-              x
             >
               <p className="text-base">{item.response}</p>
             </div>
