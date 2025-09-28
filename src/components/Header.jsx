@@ -71,7 +71,12 @@ export default function Header() {
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-text-primary">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-text-primary"
+                suppressHydrationWarning
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
