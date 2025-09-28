@@ -60,8 +60,8 @@ const faqs = [
   },
   {
     question: "How do I contact customer support?",
-    response:
-      "You can reach us via the “Contact Support” form in the Support section, or email us at support@shopease.com.",
+    response: "You can reach us via the “Contact Support” form in the Support section, or email us at",
+    link: "support@shopease.com",
   },
 ];
 
@@ -105,7 +105,12 @@ export default function FAQPage() {
                 open === index ? "max-h-96 py-4 px-8 opacity-100" : "max-h-0 py-0 px-8 opacity-0"
               }`}
             >
-              <p className="text-base">{item.response}</p>
+              <p className="text-base">
+                {item.response}{" "}
+                <a className="underline text-blue-500" href="mailto:support@shopease.com">
+                  {item?.link}
+                </a>
+              </p>
             </div>
           </div>
         ))}
