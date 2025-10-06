@@ -1,3 +1,5 @@
+// for now this is a mock page and will be replaced with the actual order history page 
+// this is ai generated code for now only
 "use client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -46,6 +48,8 @@ export default function OrderHistory() {
                 return "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/20";
         }
     };
+
+
 
     return (
         <div className="bg-background min-h-screen w-screen">
