@@ -17,7 +17,15 @@ export default function SignUp() {
     formState: { errors, isSubmitting },
     setError,
     setFocus,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: ""
+    }
+  });
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
 

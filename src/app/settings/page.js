@@ -85,12 +85,19 @@ export default function Settings() {
               {/* Profile Tab */}
               <TabsContent value="profile" className="mt-6">
                 <div className="space-y-6">
-                  <div className="text-center">
+                  <div className="text-center space-y-3">
                     <Link 
                       href="/settings/profile"
                       className="inline-flex items-center gap-2 px-4 py-2 bg-text-primary text-background rounded-lg hover:opacity-90 transition-opacity font-medium"
                     >
                       👤 View Full Profile
+                    </Link>
+                    
+                    <Link 
+                      href="/order-history"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-card-bg text-text-primary border border-card-border rounded-lg hover:bg-text-primary hover:text-background transition-colors font-medium"
+                    >
+                      📦 Order History
                     </Link>
                   </div>
                   
