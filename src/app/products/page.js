@@ -45,10 +45,10 @@ export default function ProductsPage({ onLoad, filters }) {
     });
   }, [items, filters]);
 
-  if (loading) return <div className="p-4 text-center text-black">Loading…</div>;
+  if (loading) return <div className="p-4 text-center text-text-primary">Loading…</div>;
   if (err) return <div className="p-4 text-red-600">{err}</div>;
   if (filtered.length === 0) {
-    return <div className="mx-auto max-w-6xl p-4 text-black text-center">No items found</div>;
+    return <div className="mx-auto max-w-6xl p-4 text-text-primary text-center">No items found</div>;
   }
 
   return (

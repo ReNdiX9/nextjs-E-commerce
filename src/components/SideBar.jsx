@@ -45,15 +45,15 @@ export default function SideBar({ onApply }) {
   };
 
   const inputBase =
-    "w-full rounded-xl border border-neutral-400 bg-white/80 px-3 py-2.5 text-sm outline-none transition placeholder:text-neutral-400 hover:border-neutral-900 focus:border-neutral-900 text-black";
+    "w-full rounded-xl border border-input-border bg-input-bg/80 px-3 py-2.5 text-sm outline-none transition placeholder:text-text-secondary hover:border-text-primary focus:border-text-primary text-text-primary";
 
   const visibleCats = showAllCats ? categories : categories.slice(0, 6);
 
   return (
-    <aside className="sticky top-20 rounded-2xl border border-neutral-200 bg-white/70 p-5 shadow-md backdrop-blur-sm">
+    <aside className="sticky top-20 rounded-2xl border border-card-border bg-card-bg/70 p-5 shadow-md backdrop-blur-sm">
       {/* Search */}
       <div className="mb-4">
-        <label className="mb-2 block text-md font-semibold text-black">Search</label>
+        <label className="mb-2 block text-md font-semibold text-text-primary">Search</label>
         <div className="relative">
           <FiSearch className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 " />
           <input
@@ -77,10 +77,10 @@ export default function SideBar({ onApply }) {
 
       {/* Categories */}
       <div className="mb-5">
-        <p className="mb-2 text-md text-black  font-semibold">Categories</p>
+        <p className="mb-2 text-md text-text-primary  font-semibold">Categories</p>
         {!categories.length ? (
           <div className="space-y-2">
-            <p className="text-neutral-400 text-xs">No categories found</p>
+            <p className="text-text-secondary text-xs">No categories found</p>
           </div>
         ) : (
           <>
@@ -94,8 +94,8 @@ export default function SideBar({ onApply }) {
                     className={[
                       "rounded-full border px-3 py-1.5 text-sm transition cursor-pointer",
                       active
-                        ? "border-black bg-black text-white shadow"
-                        : "border-neutral-300 text-neutral-700 hover:border-black",
+                        ? "border-text-primary bg-text-primary text-background shadow"
+                        : "border-card-border text-text-secondary hover:border-text-primary",
                     ].join(" ")}
                   >
                     <span className="capitalize">{cat}</span>
@@ -107,7 +107,7 @@ export default function SideBar({ onApply }) {
             {categories.length > 6 && (
               <button
                 onClick={() => setShowAllCats((s) => !s)}
-                className="mt-3 inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-black"
+                className="mt-3 inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
               >
                 {showAllCats ? (
                   <>
@@ -131,13 +131,13 @@ export default function SideBar({ onApply }) {
       <div className="flex gap-2 md:flex-col lg:flex-row">
         <button
           onClick={apply}
-          className="flex-1 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90  cursor-pointer hover:scale-103 active:translate-y-px"
+          className="flex-1 rounded-xl bg-text-primary px-4 py-2.5 text-sm font-medium text-background shadow-sm transition hover:opacity-90  cursor-pointer hover:scale-103 active:translate-y-px"
         >
           Apply filters
         </button>
         <button
           onClick={reset}
-          className="flex-1 rounded-xl border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-800 transition hover:bg-neutral-50 cursor-pointer hover:scale-103 active:translate-y-px hover:border-neutral-900"
+          className="flex-1 rounded-xl border border-card-border px-4 py-2.5 text-sm font-medium text-text-primary transition hover:bg-card-bg cursor-pointer hover:scale-103 active:translate-y-px hover:border-text-primary"
         >
           Reset
         </button>
@@ -148,12 +148,12 @@ export default function SideBar({ onApply }) {
 
 function PriceFilter({ min, max, setMin, setMax }) {
   const inputBase =
-    " w-20  rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm outline-none " +
-    "placeholder:text-neutral-400 focus:border-neutral-900 hover:border-neutral-900 text-black";
+    " w-20  rounded-lg border border-input-border bg-input-bg px-3 py-2 text-sm outline-none " +
+    "placeholder:text-text-secondary focus:border-text-primary hover:border-text-primary text-text-primary";
 
   return (
     <div className="mb-6">
-      <p className="mb-2  font-semibold text-black">Price</p>
+      <p className="mb-2  font-semibold text-text-primary">Price</p>
       <div className="flex items-center gap-2 md:flex-col lg:flex-row ">
         <input
           type="text"
@@ -167,7 +167,7 @@ function PriceFilter({ min, max, setMin, setMax }) {
           }}
           className={inputBase}
         />
-        <span className="text-neutral-400">–</span>
+        <span className="text-text-secondary">–</span>
         <input
           type="text"
           inputMode="numeric"

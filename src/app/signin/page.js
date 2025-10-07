@@ -25,14 +25,14 @@ export default function SignIn() {
   const [passwordShow, setPasswordShow] = useState(false);
 
   const inputBase =
-    "w-full rounded-lg border bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-900 hover:border-neutral-900 transition-all";
+    "w-full rounded-lg border border-input-border bg-input-bg px-3 py-2 text-text-primary placeholder-text-secondary outline-none focus:border-text-primary hover:border-text-primary transition-all";
 
   useEffect(() => {
     setFocus("email");
   }, [setFocus]);
 
   if (isLoading || !isLoaded) {
-    return <div className="text-center p-5 text-2xl text-neutral-500 bg-white w-full h-screen">Loading form...</div>;
+    return <div className="text-center p-5 text-2xl text-text-secondary bg-background w-full h-screen">Loading form...</div>;
   }
 
   //clerk sign in function made with chatgpt
@@ -73,15 +73,15 @@ export default function SignIn() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-white">
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-background">
       <div className="mb-6">
         <Image alt="Logo" src="/logo.png" width={50} height={50} />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border">
-        <h1 className="text-3xl font-semibold mb-5 text-black text-center">Log in to your account</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg">
+        <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Log in to your account</h1>
 
-        <label className="block mb-2 text-sm font-medium text-black" htmlFor="email">
+        <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="email">
           Email
         </label>
         <input
@@ -96,7 +96,7 @@ export default function SignIn() {
         />
         {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
 
-        <label className="block mt-4 mb-2 text-sm font-medium text-black" htmlFor="password">
+        <label className="block mt-4 mb-2 text-sm font-medium text-text-primary" htmlFor="password">
           Password
         </label>
         <div className="relative">
@@ -129,7 +129,7 @@ export default function SignIn() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-6 w-full rounded-lg bg-black text-white py-2 font-medium disabled:opacity-60 
+          className="mt-6 w-full rounded-lg bg-text-primary text-background py-2 font-medium disabled:opacity-60 
           hover:scale-103 transition-all cursor-pointer"
         >
           {isSubmitting ? "Signing in..." : "Log In"}
@@ -137,7 +137,7 @@ export default function SignIn() {
 
         <div className="my-2 flex items-center gap-3">
           <div className="h-px flex-1 bg-neutral-200" />
-          <span className=" text-neutral-500">or</span>
+          <span className=" text-text-secondary">or</span>
           <div className="h-px flex-1 bg-neutral-200" />
         </div>
 
@@ -146,7 +146,7 @@ export default function SignIn() {
             type="button"
             onClick={() => handleOAuth("google")}
             disabled={oauthLoading !== null}
-            className="flex items-center justify-center gap-2 rounded-lg border border-neutral-300 py-2 hover:bg-neutral-50 disabled:opacity-60 cursor-pointer hover:scale-105 transition-all w-20"
+            className="flex items-center justify-center gap-2 rounded-lg border border-card-border py-2 hover:bg-card-bg disabled:opacity-60 cursor-pointer hover:scale-105 transition-all w-20"
             title="Continue with Google"
           >
             <FaGoogle color="black" />
@@ -155,16 +155,16 @@ export default function SignIn() {
             type="button"
             onClick={() => handleOAuth("discord")}
             disabled={oauthLoading !== null}
-            className="flex items-center justify-center gap-2 rounded-lg border border-neutral-300 py-2 hover:bg-neutral-50 disabled:opacity-60 cursor-pointer hover:scale-105 transition-all w-20"
+            className="flex items-center justify-center gap-2 rounded-lg border border-card-border py-2 hover:bg-card-bg disabled:opacity-60 cursor-pointer hover:scale-105 transition-all w-20"
             title="Continue with Discord"
           >
             <FaDiscord color="black" />
           </button>
         </div>
 
-        <p className="mt-4 text-sm text-center text-black">
+        <p className="mt-4 text-sm text-center text-text-primary">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="underline text-gray-500">
+          <Link href="/signup" className="underline text-text-secondary">
             Create one
           </Link>
         </p>

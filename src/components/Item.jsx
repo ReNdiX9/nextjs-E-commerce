@@ -27,25 +27,25 @@ export default function Item({ id, title, category, image, price, detailsHref })
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
-      className="rounded-xl border border-neutral-200 bg-white p-3 shadow-sm transition hover:shadow-lg w-60 cursor-pointer"
+      className="rounded-xl border border-card-border bg-card-bg p-3 shadow-sm transition hover:shadow-lg w-60 cursor-pointer"
       title={title}
     >
       {/* Picture */}
-      <div className="rounded-lg bg-neutral-100  flex items-center justify-center h-40">
+      <div className="rounded-lg bg-card-border  flex items-center justify-center h-40">
         <img src={image} alt={title} className=" object-contain" width={80} />
       </div>
 
       {/* Title / meta */}
       <div className="mt-3">
         <h3 className="text-base font-semibold ">
-          <span className="block truncate text-black">{title}</span>
+          <span className="block truncate text-text-primary">{title}</span>
         </h3>
 
-        {category && <p className="mt-1 text-sm text-neutral-500">{category}</p>}
+        {category && <p className="mt-1 text-sm text-text-secondary">{category}</p>}
 
         <div className="mt-3 flex items-center ">
           <div className="flex items-center justify-center gap-20 w-full">
-            <p className="text-xs  text-neutral-500 font-semibold select-none">${price}</p>
+            <p className="text-xs  text-text-secondary font-semibold select-none">${price}</p>
             <FavoriteButton product={product} />
           </div>
         </div>

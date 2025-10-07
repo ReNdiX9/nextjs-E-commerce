@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { FaRegTrashAlt } from "react-icons/fa";
 import Header from "@/components/Header";
-import { UserProfile, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
-
+import Footer from "@/components/Footer";
+import Link from "next/link";
+// used shadcn ui for tabs and separator tabslist and tabstrigger and tabscontent
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 const LS_KEY = "settings";
 
 export default function Settings() {
@@ -52,86 +53,147 @@ export default function Settings() {
   };
 
   const handleUpdateEmail = async () => {
-    const { error } = await supabase.auth.updateUser({ email });
-    if (error) {
-      setMessage(`Error updating email: ${error.message}`);
-    } else {
-      setMessage("Email updated successfully!");
-    }
+    // TODO: Implement email update with Clerk
+    setMessage("Email update feature coming soon!");
   };
 
   const handleUpdatePassword = async () => {
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setMessage(`Error updating password: ${error.message}`);
-    } else {
-      setMessage("Password updated successfully!");
-    }
+    // TODO: Implement password update with Clerk
+    setMessage("Password update feature coming soon!");
   };
 
   if (!ready) {
-    return <div className="p-4">Loading settings…</div>;
+    return <div className="p-4 text-text-primary">Loading settings…</div>;
   }
 
   return (
-    <div className="bg-white min-h-screen w-screen">
+    <div className="bg-background min-h-screen w-screen">
       <Header />
 
       <main className="p-4">
-        <section className="max-w-md mx-auto mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-black text-center">Account Settings</h2>
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
+            <h2 className="text-2xl font-bold mb-6 text-text-primary text-center">Account Settings</h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700">New Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 mt-1"
-                placeholder="Enter new email"
-              />
-              <button
-                onClick={handleUpdateEmail}
-                className="mt-2 bg-black text-white px-4 py-2 rounded hover:opacity-90"
-              >
-                Update Email
-              </button>
-            </div>
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+                <TabsTrigger value="preferences">Preferences</TabsTrigger>
+              </TabsList>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-700">New Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 mt-1"
-                placeholder="Enter new password"
-              />
-              <button
-                onClick={handleUpdatePassword}
-                className="mt-2 bg-black text-white px-4 py-2 rounded hover:opacity-90"
-              >
-                Update Password
-              </button>
+              {/* Profile Tab */}
+              <TabsContent value="profile" className="mt-6">
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <Link 
+                      href="/settings/profile"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-text-primary text-background rounded-lg hover:opacity-90 transition-opacity font-medium"
+                    >
+                      👤 View Full Profile
+                    </Link>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="text-center">
+                    <UserButton 
+                      appearance={{
+                        elements: {
+                          avatarBox: "w-20 h-20"
+                        }
+                      }}
+                    />
+                    <p className="mt-2 text-text-secondary">Click to manage your profile</p>
+                  </div>
+                </div>
+              </TabsContent>
 
-              <li>
-                <UserButton />
-              </li>
+              {/* Security Tab */}
+              <TabsContent value="security" className="mt-6">
+                <div className="space-y-6">
+                  {/* Email Update Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-text-primary">Update Email</h3>
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-text-primary">New Email</label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full border border-input-border rounded-md px-3 py-2 bg-input-bg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-transparent"
+                        placeholder="Enter new email"
+                      />
+                      <button
+                        onClick={handleUpdateEmail}
+                        className="w-full bg-text-primary text-background px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium"
+                      >
+                        Update Email
+                      </button>
+                    </div>
+                  </div>
 
-              {/* ✅ Sign Out Button */}
-              <button
-                onClick={() => signOut()}
-                className="mt-4 text-sm text-red-500 underline hover:text-red-700"
-              >
-                Sign Out
-              </button>
-            </div>
+                  <Separator />
 
-            {message && <p className="text-center text-sm text-green-600 mt-4">{message}</p>}
+                  {/* Password Update Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-text-primary">Update Password</h3>
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-text-primary">New Password</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full border border-input-border rounded-md px-3 py-2 bg-input-bg text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-transparent"
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        onClick={handleUpdatePassword}
+                        className="w-full bg-text-primary text-background px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-medium"
+                      >
+                        Update Password
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Preferences Tab */}
+              <TabsContent value="preferences" className="mt-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-text-primary">Account Actions</h3>
+                    <div className="space-y-4">
+                      <button
+                        onClick={() => signOut()}
+                        className="w-full text-sm text-red-500 hover:text-red-700 underline transition-colors py-2"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Message Display */}
+                  {message && (
+                    <div className="text-center">
+                      <p className={`text-sm mt-4 px-4 py-2 rounded-md ${
+                        message.includes('Error') || message.includes('error') 
+                          ? 'text-red-600 bg-red-50 border border-red-200' 
+                          : 'text-green-600 bg-green-50 border border-green-200'
+                      }`}>
+                        {message}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
-        </section>
+        </div>
       </main>
+      <Footer />
     </div>
   );
 }

@@ -7,6 +7,7 @@ export default function CreateItemPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,9 +22,13 @@ export default function CreateItemPage() {
       return;
     }
 
-    // this should be corrected
-    if (price <= 0 || price === "") {
+    if (Number(price) <= 0 || price === "") {
       alert("Please enter a valid price 0 or higher");
+      return;
+    }
+
+    if (!image) {
+      alert("Please select an image");
       return;
     }
 
@@ -43,19 +48,20 @@ export default function CreateItemPage() {
       setName("");
       setDescription("");
       setPrice("");
+      setImage("");
     }, 1000);
   };
 
   // implement the tailwind css in the page but keep the pattern of designing same  like background color, font color, font size, font weight, etc.
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       {/* header is called from the layout  */}
       <Header />
 
       <main className="max-w-3xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h1 className="text-2xl font-semibold text-black mb-6">
+        <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
+          <h1 className="text-2xl font-semibold text-text-primary mb-6">
             List Your Item
           </h1>
 
@@ -65,38 +71,34 @@ export default function CreateItemPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 rounded text-black text-lg"
+                className="w-full px-3 py-3 border border-input-border rounded text-text-primary text-lg bg-input-bg"
                 placeholder="name"
               />
             </div>
-
             <div>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 rounded text-black text-lg"
+                className="w-full px-3 py-3 border border-input-border rounded text-text-primary text-lg bg-input-bg"
                 placeholder="description"
               />
             </div>
-
             <div>
               <input
                 type="number"
                 value={price}
                 min="0"
-                step="0.01"
                 onChange={(e) => setPrice(e.target.value)}
-                className="w-full px-3 py-3 border border-gray-300 rounded text-black text-lg"
+                className="w-full px-3 py-3 border border-input-border rounded text-text-primary text-lg bg-input-bg"
                 placeholder="price"
               />
             </div>
-
             {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3 px-4 rounded text-lg font-medium text-white bg-blue-500 hover:bg-blue-600"
+                className="w-full py-3 px-4 rounded text-lg font-medium text-background bg-text-primary hover:opacity-80 transition-opacity"
               >
                 Post Item
               </button>
