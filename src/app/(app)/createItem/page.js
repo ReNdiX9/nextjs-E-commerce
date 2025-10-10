@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export default function CreateItemPage() {
   const [name, setName] = useState("");
@@ -39,8 +37,7 @@ export default function CreateItemPage() {
         price: price,
       };
       // append the new item to the existing items in local storage and save it
-      const existingItems =
-        JSON.parse(localStorage.getItem("userListings")) || [];
+      const existingItems = JSON.parse(localStorage.getItem("userListings")) || [];
       const updateditems = [...existingItems, Item];
       localStorage.setItem("userListings", JSON.stringify(updateditems));
 
@@ -57,13 +54,10 @@ export default function CreateItemPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* header is called from the layout  */}
-      <Header />
 
       <main className="max-w-3xl mx-auto px-4 py-6">
         <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
-          <h1 className="text-2xl font-semibold text-text-primary mb-6">
-            List Your Item
-          </h1>
+          <h1 className="text-2xl font-semibold text-text-primary mb-6">List Your Item</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -106,9 +100,6 @@ export default function CreateItemPage() {
           </form>
         </div>
       </main>
-
-      {/* footer is called from the layout  */}
-      <Footer />
     </div>
   );
 }

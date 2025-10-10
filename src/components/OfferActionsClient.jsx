@@ -28,7 +28,6 @@ export default function OfferActionsClient({ item }) {
         onClose={() => setOpen(false)}
         item={item}
         onSubmit={(finalPrice) => {
-          // await api.sendOffer({ productId: item.id, price: finalPrice })
           console.log("Offer sent with price:", finalPrice);
           notify();
         }}

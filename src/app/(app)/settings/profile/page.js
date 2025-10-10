@@ -46,11 +46,9 @@ export default function ProfilePage() {
   if (!isLoaded) {
     return (
       <div className="bg-background min-h-screen w-screen">
-        <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-text-primary">Loading profile...</div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -58,26 +56,20 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="bg-background min-h-screen w-screen">
-        <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-text-primary mb-4">
-              Please sign in
-            </h1>
+            <h1 className="text-2xl font-bold text-text-primary mb-4">Please sign in</h1>
             <Link href="/signin" className="text-text-primary hover:underline">
               Sign in to view your profile
             </Link>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="bg-background min-h-screen w-screen">
-      <Header />
-
       <main className="p-4">
         <div className="max-w-2xl mx-auto">
           {/* Back to Settings */}
@@ -101,12 +93,8 @@ export default function ProfilePage() {
                 }}
               />
             </div>
-            <h1 className="text-3xl font-bold text-text-primary mb-2">
-              {user.fullName || user.firstName || "User"}
-            </h1>
-            <p className="text-text-secondary mb-2">
-              {user.primaryEmailAddress?.emailAddress}
-            </p>
+            <h1 className="text-3xl font-bold text-text-primary mb-2">{user.fullName || user.firstName || "User"}</h1>
+            <p className="text-text-secondary mb-2">{user.primaryEmailAddress?.emailAddress}</p>
             <div className="flex items-center justify-center gap-2 text-text-secondary">
               <FaCalendarAlt className="w-4 h-4" />
               <span>Joined {userStats.joinDate?.toLocaleDateString()}</span>
@@ -119,9 +107,7 @@ export default function ProfilePage() {
               <div className="flex items-center justify-center mb-3">
                 <FaList className="w-8 h-8 text-text-primary" />
               </div>
-              <h3 className="text-2xl font-bold text-text-primary mb-1">
-                {userStats.listingsCount}
-              </h3>
+              <h3 className="text-2xl font-bold text-text-primary mb-1">{userStats.listingsCount}</h3>
               <p className="text-text-secondary">Listings Created</p>
             </div>
 
@@ -129,18 +115,14 @@ export default function ProfilePage() {
               <div className="flex items-center justify-center mb-3">
                 <FaHeart className="w-8 h-8 text-text-primary" />
               </div>
-              <h3 className="text-2xl font-bold text-text-primary mb-1">
-                {userStats.favoritesCount}
-              </h3>
+              <h3 className="text-2xl font-bold text-text-primary mb-1">{userStats.favoritesCount}</h3>
               <p className="text-text-secondary">Favorites</p>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6">
-            <h2 className="text-xl font-semibold text-text-primary mb-4">
-              Quick Actions
-            </h2>
+            <h2 className="text-xl font-semibold text-text-primary mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link
                 href="/createItem"
@@ -148,12 +130,8 @@ export default function ProfilePage() {
               >
                 <FaList className="w-5 h-5 text-text-primary" />
                 <div>
-                  <h3 className="font-medium text-text-primary">
-                    Create Listing
-                  </h3>
-                  <p className="text-sm text-text-secondary">
-                    Add a new item to sell
-                  </p>
+                  <h3 className="font-medium text-text-primary">Create Listing</h3>
+                  <p className="text-sm text-text-secondary">Add a new item to sell</p>
                 </div>
               </Link>
 
@@ -174,20 +152,14 @@ export default function ProfilePage() {
               >
                 <FaHeart className="w-5 h-5 text-text-primary" />
                 <div>
-                  <h3 className="font-medium text-text-primary">
-                    My Favorites
-                  </h3>
-                  <p className="text-sm text-text-secondary">
-                    View saved items
-                  </p>
+                  <h3 className="font-medium text-text-primary">My Favorites</h3>
+                  <p className="text-sm text-text-secondary">View saved items</p>
                 </div>
               </Link>
             </div>
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -58,12 +58,12 @@ export default function SendOfferDialog({
             <h2 id="send-offer-title" className="text-xl font-semibold tracking-tight text-neutral-900">
               Review & Send Offer
             </h2>
-            <p className="text-xs text-neutral-500">Confirm details and choose a price.</p>
+            <p className="text-xs text-neutral-500 font-bold">Confirm details and choose a price.</p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="rounded-full p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 transition"
+            className="rounded-full p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 transition cursor-pointer"
           >
             Close
           </button>
@@ -75,7 +75,7 @@ export default function SendOfferDialog({
             <img
               src={item.image}
               alt={item.title}
-              className="h-24 w-24 shrink-0 rounded-lg border border-neutral-200 object-cover"
+              className="h-40 w-40 p-3  rounded-lg border border-neutral-200 object-cover"
             />
           )}
           <div className="min-w-0">
@@ -137,14 +137,18 @@ export default function SendOfferDialog({
                       $
                     </span>
                     <input
-                      type="number"
-                      min="0.1"
-                      step="0.1"
-                      inputMode="numeric"
-                      placeholder="0.0"
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      pattern="^\d*([.]\d{0,2})?$"
                       value={customPrice}
-                      onChange={(e) => setCustomPrice(e.target.value)}
-                      className={`w-40 rounded-lg border bg-white px-7 py-2 text-sm outline-none transition text-black
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (/^\d*(\.\d{0,2})?$/.test(v) || v === "") {
+                          setCustomPrice(v);
+                        }
+                      }}
+                      className={`w-40 rounded-lg border bg-white pl-7 pr-2 py-2 text-sm outline-none transition text-black
                                  ${
                                    mode === "custom"
                                      ? "border-neutral-300 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
@@ -157,7 +161,7 @@ export default function SendOfferDialog({
                       validPrice || mode === "standard" ? "text-transparent" : "text-red-600"
                     }`}
                   >
-                    Minimum $0.1
+                    Enter amount
                   </span>
                 </div>
               </div>
@@ -169,7 +173,7 @@ export default function SendOfferDialog({
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 hover:bg-neutral-50"
+            className=" cursor-pointer rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 hover:bg-neutral-50"
           >
             {secondaryLabel}
           </button>
@@ -177,7 +181,7 @@ export default function SendOfferDialog({
             disabled={!validPrice}
             onClick={() => {
               if (!validPrice) return;
-              onSubmit?.(Number(finalPrice.toFixed(2)));
+              onSubmit?.(finalPrice.toFixed(2));
               onClose?.();
             }}
             className={`rounded-lg px-4 py-2 text-sm text-white transition cursor-pointer
