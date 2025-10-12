@@ -23,8 +23,8 @@ export default function SignUp() {
       email: "",
       phone: "",
       password: "",
-      confirmPassword: ""
-    }
+      confirmPassword: "",
+    },
   });
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
@@ -58,6 +58,7 @@ export default function SignUp() {
       } catch {
         if (res?.status === "complete" && res?.createdSessionId) {
           await setActive({ session: res.createdSessionId });
+          await fetch("/api/users", { method: "POST" });
           router.push("/");
           return;
         }
@@ -78,6 +79,7 @@ export default function SignUp() {
       const res = await signUp.attemptEmailAddressVerification({ code });
       if (res?.status === "complete" && res?.createdSessionId) {
         await setActive({ session: res.createdSessionId });
+        await fetch("/api/users", { method: "POST" });
         router.push("/");
       } else {
         setServerMsg("Additional step required. Follow the next step.");
@@ -101,7 +103,10 @@ export default function SignUp() {
       </div>
 
       {!needCode ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg"
+        >
           <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Create an account</h1>
 
           <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="name">
@@ -205,7 +210,10 @@ export default function SignUp() {
           </p>
         </form>
       ) : (
-        <form onSubmit={onVerify} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg mt-4">
+        <form
+          onSubmit={onVerify}
+          className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg mt-4"
+        >
           <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Verify your email</h1>
 
           <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="code">

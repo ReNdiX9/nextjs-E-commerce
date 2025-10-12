@@ -32,7 +32,9 @@ export default function SignIn() {
   }, [setFocus]);
 
   if (isLoading || !isLoaded) {
-    return <div className="text-center p-5 text-2xl text-text-secondary bg-background w-full h-screen">Loading form...</div>;
+    return (
+      <div className="text-center p-5 text-2xl text-text-secondary bg-background w-full h-screen">Loading form...</div>
+    );
   }
 
   //clerk sign in function made with chatgpt
@@ -46,6 +48,7 @@ export default function SignIn() {
 
       if (res?.status === "complete" && res?.createdSessionId) {
         await setActive({ session: res.createdSessionId });
+        await fetch("/api/users", { method: "POST" });
         router.push("/");
       } else {
         setServerMsg("Additional step required. Check your email or follow the next step.");
@@ -78,7 +81,10 @@ export default function SignIn() {
         <Image alt="Logo" src="/logo.png" width={50} height={50} />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg"
+      >
         <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Log in to your account</h1>
 
         <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="email">
