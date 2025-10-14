@@ -4,7 +4,7 @@
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductsPage from "@/app/products/page";
+import ProductsPage from "@/app/(app)/products/page";
 import SideBar from "@/components/SideBar";
 import { useState } from "react";
 

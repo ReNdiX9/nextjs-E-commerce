@@ -1,10 +1,9 @@
-// app/product/[id]/page.js
+// app/product/[ProductID]/page.js
 import Link from "next/link";
 import Image from "next/image";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
-import FavoriteButton from "../../../components/FavoriteButton";
+import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
 // used shadcn ui for breadcrumb navigation
 import {
@@ -28,8 +27,6 @@ export default async function ProductPage({ params }) {
 
   return (
     <div className=" h-full min-h-screen  bg-background">
-      <Header />
-      
       {/* Breadcrumb Navigation */}
       <div className="m-3">
         <Breadcrumb>
@@ -47,9 +44,7 @@ export default async function ProductPage({ params }) {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-text-primary font-medium">
-                {p.title}
-              </BreadcrumbPage>
+              <BreadcrumbPage className="text-text-primary font-medium">{p.title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -95,7 +90,6 @@ export default async function ProductPage({ params }) {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

@@ -2,10 +2,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
+import { FaRegTrashAlt } from "react-icons/fa";
 import FavoriteButton from "@/components/FavoriteButton";
 
-export default function Item({ id, title, category, image, price, detailsHref }) {
+export default function Item({ id, title, category, image, price, detailsHref, onDelete, showFavorite = true }) {
   const detailsUrl = detailsHref ?? (id ? `/product/${id}` : "#");
   const router = useRouter();
   const handleCardClick = () => {
@@ -45,8 +45,20 @@ export default function Item({ id, title, category, image, price, detailsHref })
 
         <div className="mt-3 flex items-center ">
           <div className="flex items-center justify-center gap-20 w-full">
-            <p className="text-xs  text-text-secondary font-semibold select-none">${price}</p>
-            <FavoriteButton product={product} />
+            <p className="text-xs  text-text-secondary font-semibold select-none">${price.toFixed(2)}</p>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              {showFavorite && <FavoriteButton product={product} />}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(id)}
+                  className="rounded-md border border-card-border px-3 py-1 text-text-secondary hover:opacity-90 active:translate-y-px transition-all cursor-pointer"
+                  title="Remove from favorites"
+                  aria-label="Remove from favorites"
+                >
+                  <FaRegTrashAlt />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

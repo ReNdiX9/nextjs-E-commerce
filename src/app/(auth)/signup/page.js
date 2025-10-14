@@ -9,22 +9,24 @@ import { FaLock, FaLockOpen } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 export default function SignUp() {
-  //reactForm hook
   const {
     register,
     handleSubmit,
     watch,
+    getValues,
     formState: { errors, isSubmitting },
     setError,
     setFocus,
   } = useForm({
+    mode: "onChange",
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       password: "",
-      confirmPassword: ""
-    }
+      confirmPassword: "",
+    },
   });
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
@@ -37,18 +39,17 @@ export default function SignUp() {
   const inputBase =
     "w-full rounded-lg border border-input-border bg-input-bg px-3 py-2 text-text-primary placeholder-text-secondary outline-none focus:border-text-primary hover:border-text-primary transition-all";
 
-  //chat gpt generated function
   const onSubmit = async (values) => {
     if (!isLoaded) return;
     setServerMsg("");
 
-    const { name, email, password, phone } = values;
+    const { firstName, lastName, email, password, phone } = values;
 
     try {
+      // Only send email and password to Clerk
       const res = await signUp.create({
         emailAddress: email,
         password,
-        publicMetadata: { firstName: name, phone },
       });
 
       try {
@@ -58,6 +59,12 @@ export default function SignUp() {
       } catch {
         if (res?.status === "complete" && res?.createdSessionId) {
           await setActive({ session: res.createdSessionId });
+          // Send firstName, lastName, phone to our API
+          await fetch("/api/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ firstName, lastName, phone }),
+          });
           router.push("/");
           return;
         }
@@ -68,7 +75,7 @@ export default function SignUp() {
       setError("root", { message: msg });
     }
   };
-  //chatgpt generated function
+
   const onVerify = async (e) => {
     e.preventDefault();
     if (!isLoaded) return;
@@ -78,6 +85,18 @@ export default function SignUp() {
       const res = await signUp.attemptEmailAddressVerification({ code });
       if (res?.status === "complete" && res?.createdSessionId) {
         await setActive({ session: res.createdSessionId });
+
+        const values = getValues();
+        await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: values.firstName,
+            lastName: values.lastName,
+            phone: values.phone,
+          }),
+        });
+
         router.push("/");
       } else {
         setServerMsg("Additional step required. Follow the next step.");
@@ -88,10 +107,10 @@ export default function SignUp() {
     }
   };
 
-  const pwd = watch("password", ""); //to watch password field and compare it
+  const pwd = watch("password", "");
 
   useEffect(() => {
-    setFocus("name");
+    setFocus("firstName");
   }, [setFocus]);
 
   return (
@@ -101,19 +120,35 @@ export default function SignUp() {
       </div>
 
       {!needCode ? (
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg"
+        >
           <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Create an account</h1>
 
-          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="name">
-            Full name
+          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="firstName">
+            First name
           </label>
           <input
-            id="name"
+            id="firstName"
             type="text"
-            placeholder="Don Fricks"
-            className={`${inputBase} ${errors.name ? "border-red-500" : "border-neutral-300"} mb-3`}
-            {...register("name", { required: "Full name is required" })}
+            placeholder="John"
+            className={`${inputBase} ${errors.firstName ? "border-red-500" : "border-neutral-300"} mb-3`}
+            {...register("firstName", { required: "First name is required" })}
           />
+          {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>}
+
+          <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="lastName">
+            Last name
+          </label>
+          <input
+            id="lastName"
+            type="text"
+            placeholder="Doe"
+            className={`${inputBase} ${errors.lastName ? "border-red-500" : "border-neutral-300"} mb-3`}
+            {...register("lastName", { required: "Last name is required" })}
+          />
+          {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>}
 
           <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="email">
             Email
@@ -205,7 +240,10 @@ export default function SignUp() {
           </p>
         </form>
       ) : (
-        <form onSubmit={onVerify} className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg mt-4">
+        <form
+          onSubmit={onVerify}
+          className="w-full max-w-sm rounded-2xl p-6 shadow-md border border-card-border bg-card-bg mt-4"
+        >
           <h1 className="text-3xl font-semibold mb-5 text-text-primary text-center">Verify your email</h1>
 
           <label className="block mb-2 text-sm font-medium text-text-primary" htmlFor="code">
@@ -216,7 +254,7 @@ export default function SignUp() {
             type="text"
             placeholder="123456"
             className={`${inputBase} border-neutral-300`}
-            value={code ?? ""}
+            value={code}
             onChange={(e) => setCode(e.target.value)}
           />
 

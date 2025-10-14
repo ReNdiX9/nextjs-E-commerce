@@ -2,6 +2,8 @@
 
 "use client";
 
+import { Moon, Sun } from "lucide-react";
+
 import { useState, useEffect } from "react";
 
 export default function ThemeToggle() {
@@ -13,6 +15,9 @@ export default function ThemeToggle() {
     if (savedTheme === "dark") {
       setIsDark(true);
       document.documentElement.classList.add("dark");
+    } else {
+      setIsDark(false);
+      document.documentElement.classList.remove("dark");
     }
   }, []);
 
@@ -32,10 +37,16 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-md bg-card-bg border border-card-border text-text-primary hover:opacity-80 transition-opacity"
+      className="p-2 rounded-md bg-card-bg border border-card-border text-text-primary hover:opacity-80 transition-all duration-500 ease-in-out"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {isDark ? "☀️" : "🌙"}
+      <div className={`transform transition-transform duration-500 ease-in-out ${isDark ? "rotate-240" : "rotate-0"}`}>
+        {isDark ? (
+          <Moon className="text-blue-500 transition-colors duration-500" />
+        ) : (
+          <Sun className="text-yellow-500 transition-colors duration-500" />
+        )}
+      </div>
     </button>
   );
 }

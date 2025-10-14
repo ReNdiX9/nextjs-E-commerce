@@ -2,11 +2,8 @@
 
 import Grid from "@mui/material/Grid";
 import Item from "@/components/Item";
-// import { useRouter } from "next/navigation";
 
 export default function ProductsGrid({ products }) {
-  // const router = useRouter();
-
   return (
     <Grid container spacing={3} justifyContent="center">
       {products.map((p) => (
