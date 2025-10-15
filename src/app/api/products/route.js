@@ -28,8 +28,8 @@ export async function POST(request) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
+    // const client = await clerkClient();
+    //const user = await client.users.getUser(userId);
 
     const body = await request.json();
     const productsCollection = await getCollection("products");

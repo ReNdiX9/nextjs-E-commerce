@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { Categories, Conditions } from "@/lib/utils";
 
 export default function CreateListingPage() {
   const { userId } = useAuth();
-  const { user } = useUser();
+
+  const [userData, setUserData] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [finalMessage, setFinalMessage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -24,8 +27,33 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const categories = Categories;
-  const conditions = Conditions;
+  //Memoize data
+  const categories = useMemo(() => Categories, []);
+  const conditions = useMemo(() => Conditions, []);
+
+  // Fetch user data from YOUR MongoDB database
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        setLoadingUser(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/users/${userId}`, { cache: "force-cache", next: { revalidate: 1800 } });
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,6 +86,7 @@ export default function CreateListingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setFinalMessage(true);
 
     // Validation
     if (!formData.title.trim()) {
@@ -88,6 +117,12 @@ export default function CreateListingPage() {
       // In production, upload to Cloudinary
       const imageUrls = images.map((_, index) => `https://placehold.co/600x400?text=Item+${index + 1}`);
 
+      // Build seller name from YOUR MongoDB user data
+      const sellerName =
+        userData?.firstName && userData?.lastName
+          ? `${userData.firstName} ${userData.lastName}`
+          : userData?.firstName || "Anonymous User";
+
       const listingData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -97,8 +132,8 @@ export default function CreateListingPage() {
         location: formData.location.trim() || "Not specified",
         images: imageUrls,
         sellerId: userId,
-        sellerName: user?.username || "Unknown", //fix later
-        sellerEmail: user?.emailAddresses?.[0]?.emailAddress || "",
+        sellerName: sellerName,
+        sellerEmail: userData?.email || "",
       };
 
       const response = await fetch("/api/products", {
@@ -113,11 +148,7 @@ export default function CreateListingPage() {
         throw new Error(result.error || "Failed to create listing");
       }
 
-      alert("Listing created successfully!");
-    } catch (err) {
-      setError(err.message || "Failed to create listing");
-    } finally {
-      setLoading(false);
+      // Reset form
       setFormData({
         title: "",
         description: "",
@@ -126,6 +157,13 @@ export default function CreateListingPage() {
         condition: "",
         location: "",
       });
+      setImages([]);
+      setImagePreviews([]);
+    } catch (err) {
+      setError(err.message || "Failed to create listing");
+    } finally {
+      setLoading(false);
+      setFinalMessage(false);
     }
   };
 
@@ -141,6 +179,14 @@ export default function CreateListingPage() {
             Go to Sign In
           </a>
         </div>
+      </div>
+    );
+  }
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading...</div>
       </div>
     );
   }
@@ -302,8 +348,14 @@ export default function CreateListingPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4  rounded-lg">
+              <div className="p-4 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+            {/*Final Message*/}
+            {finalMessage && (
+              <div className="p-4 rounded-lg">
+                <p className="text-sm text-green-600">Your item has been successfully listed </p>
               </div>
             )}
 

@@ -9,7 +9,7 @@ const client = new MongoClient(process.env.MONGODB_URI, {
     deprecationErrors: true,
   },
 });
-
+//connect to mongodb
 async function getDB(dbName) {
   try {
     await client.connect();
@@ -19,6 +19,7 @@ async function getDB(dbName) {
     console.error(e);
   }
 }
+//function to get collection
 export async function getCollection(collectionName) {
   try {
     const db = await getDB("shopease");
