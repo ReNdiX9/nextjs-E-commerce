@@ -1,11 +1,10 @@
-// app/product/[ProductID]/page.js
+// app/product/[id]/page.js
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
-// used shadcn ui for breadcrumb navigation
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -25,8 +24,20 @@ export default async function ProductPage({ params }) {
 
   const p = await res.json();
 
+  // Create product object with both id and _id for MongoDB compatibility
+  const product = {
+    _id: p.id, // Use id as _id for favorites system
+    id: p.id,
+    title: p.title,
+    price: p.price,
+    image: p.image,
+    images: [p.image], // Wrap in array for consistency
+    category: p.category,
+    description: p.description,
+  };
+
   return (
-    <div className=" h-full min-h-screen  bg-background">
+    <div className="h-full min-h-screen bg-background">
       {/* Breadcrumb Navigation */}
       <div className="m-3">
         <Breadcrumb>
@@ -76,7 +87,7 @@ export default async function ProductPage({ params }) {
           <p className="text-text-primary leading-relaxed">{p.description}</p>
 
           <div className="flex gap-4 items-center">
-            {/* Actions (client) */}
+            {/* Actions */}
             <OfferActionsClient
               item={{
                 id: p.id,
@@ -86,7 +97,8 @@ export default async function ProductPage({ params }) {
                 description: p.description,
               }}
             />
-            <FavoriteButton product={p} />
+            {/* Pass product object */}
+            <FavoriteButton product={product} />
           </div>
         </div>
       </div>

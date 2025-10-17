@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 // GET  a single product
 export async function GET(_request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const productsCollection = await getCollection("products");
     const product = await productsCollection.findOne({ _id: ObjectId(id) });
 
@@ -55,18 +55,18 @@ export async function DELETE(_request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { productId } = await params;
+    const { id } = await params;
 
     // Validate ObjectId format
-    if (!ObjectId.isValid(productId)) {
+    if (!ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
     }
 
     const productsCollection = await getCollection("products");
 
-    // First, check if the product exists and belongs to the user
+    // Checking if the product exists and belongs to the user
     const product = await productsCollection.findOne({
-      _id: ObjectId(productId),
+      _id: new ObjectId(id), //it says deprecated, but does not work if i remove new keyword
     });
 
     if (!product) {
@@ -85,7 +85,7 @@ export async function DELETE(_request, { params }) {
 
     // Delete the product
     const result = await productsCollection.deleteOne({
-      _id: ObjectId(productId),
+      _id: new ObjectId(id),
       sellerId: userId,
     });
 
@@ -95,11 +95,17 @@ export async function DELETE(_request, { params }) {
 
     return NextResponse.json({
       message: "Product deleted successfully",
-      deletedId: productId,
+      deletedId: id,
     });
   } catch (error) {
     console.error("Error deleting product:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    // Return more detailed error info for debugging
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
-//TODO fix delete a product functionality !!! Invalid product ID !!!

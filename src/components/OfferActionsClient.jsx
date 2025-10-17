@@ -35,14 +35,7 @@ export default function OfferActionsClient({ item }) {
         secondaryLabel="Cancel"
       />
       {/* Toast message*/}
-      <ToastContainer
-        position="top-center"
-        theme="light"
-        style={{ zIndex: 10000 }}
-        draggable
-        pauseOnHover
-        autoClose={3000}
-      />
+      <ToastContainer position="top-center" theme="colored" style={{ zIndex: 10000 }} draggable autoClose={2000} />
     </>
   );
 }

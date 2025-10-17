@@ -5,13 +5,13 @@ import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { Categories, Conditions } from "@/lib/utils";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function CreateListingPage() {
   const { userId } = useAuth();
 
   const [userData, setUserData] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [finalMessage, setFinalMessage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -26,6 +26,9 @@ export default function CreateListingPage() {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  //toast message
+  const onListed = () => toast.success("Your item has been listed successfully!");
 
   //Memoize data
   const categories = useMemo(() => Categories, []);
@@ -86,7 +89,7 @@ export default function CreateListingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setFinalMessage(true);
+    onListed();
 
     // Validation
     if (!formData.title.trim()) {
@@ -163,7 +166,6 @@ export default function CreateListingPage() {
       setError(err.message || "Failed to create listing");
     } finally {
       setLoading(false);
-      setFinalMessage(false);
     }
   };
 
@@ -193,6 +195,8 @@ export default function CreateListingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/*Toast message*/}
+      <ToastContainer draggable position="top-center" theme="colored" autoClose={2000} />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-card-bg rounded-2xl shadow-md border border-card-border p-6 md:p-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">List Your Item</h1>
@@ -350,12 +354,6 @@ export default function CreateListingPage() {
             {error && (
               <div className="p-4 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-            {/*Final Message*/}
-            {finalMessage && (
-              <div className="p-4 rounded-lg">
-                <p className="text-sm text-green-600">Your item has been successfully listed </p>
               </div>
             )}
 

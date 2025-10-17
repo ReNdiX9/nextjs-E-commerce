@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function MyListingsPage() {
   const { userId } = useAuth();
@@ -11,6 +12,8 @@ export default function MyListingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+
+  const deleteNotification = () => toast.success("Your listing was successfully deleted!");
 
   useEffect(() => {
     const fetchMyListings = async () => {
@@ -41,10 +44,6 @@ export default function MyListingsPage() {
 
   //Delete function
   const handleDelete = async (productId) => {
-    if (!confirm("Are you sure you want to delete this listing?")) {
-      return;
-    }
-
     setDeletingId(productId);
 
     try {
@@ -60,11 +59,10 @@ export default function MyListingsPage() {
       // Remove the deleted item from the list
       setListings((prev) => prev.filter((item) => item._id !== productId));
 
-      // Show success message (optional)
-      alert("Listing deleted successfully!");
+      // Show success message
+      deleteNotification();
     } catch (err) {
       console.error("Error deleting listing:", err);
-      alert(err.message || "Failed to delete listing. Please try again.");
     } finally {
       setDeletingId(null);
     }
@@ -95,6 +93,8 @@ export default function MyListingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Toast message*/}
+      <ToastContainer position="top-center" theme="colored" style={{ zIndex: 10000 }} draggable autoClose={2000} />
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-card-bg rounded-2xl shadow-md border border-card-border p-6 md:p-8">
           <h1 className="text-3xl font-bold text-text-primary mb-6">My Listings</h1>
@@ -110,7 +110,7 @@ export default function MyListingsPage() {
               <p className="text-text-secondary text-lg mb-2">No listings yet</p>
               <p className="text-text-secondary text-sm mb-6">Start by creating your first listing!</p>
               <Link
-                href="/create-listing"
+                href="/createItem"
                 className="inline-block px-6 py-3 bg-text-primary text-background rounded-lg font-semibold hover:opacity-90 transition-all"
               >
                 Create Listing

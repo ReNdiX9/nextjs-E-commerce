@@ -1,72 +1,106 @@
-// app/product/[id]/FavoriteButton.jsx
+// /FavoriteButton.jsx
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { FaRegStar, FaStar } from "react-icons/fa";
-
-const LS_KEY = "favorites";
-
-function readFavorites() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    // keep only objects with a non-null id
-    return Array.isArray(parsed) ? parsed.filter((p) => p && typeof p === "object" && "id" in p && p.id != null) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeFavorites(items) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(items));
-  } catch {}
-}
+import { toast } from "react-toastify";
 
 export default function FavoriteButton({ product }) {
+  const { userId } = useAuth();
   const [ready, setReady] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    // if product is missing, just mark not favorite
-    if (!product || product.id == null) {
-      setIsFavorite(false);
-      setReady(true);
-      return;
-    }
-    const items = readFavorites();
-    setIsFavorite(items.some((p) => p.id === product.id));
-    setReady(true);
-  }, [product?.id]);
+    const checkFavorite = async () => {
+      if (!product || !product._id) {
+        setIsFavorite(false);
+        setReady(true);
+        return;
+      }
 
-  const toggleFavorite = (e) => {
+      if (!userId) {
+        setIsFavorite(false);
+        setReady(true);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/myfavorites");
+        if (response.ok) {
+          const favorites = await response.json();
+          const isFav = favorites.some((fav) => fav._id === product._id);
+          setIsFavorite(isFav);
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      } finally {
+        setReady(true);
+      }
+    };
+
+    checkFavorite();
+  }, [userId, product?._id]);
+
+  const toggleFavorite = async (e) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!product || product.id == null) return;
 
-    const items = readFavorites();
-    const exists = items.some((p) => p.id === product.id);
+    if (!product || !product._id) return;
 
-    let next;
-    if (exists) {
-      next = items.filter((p) => p.id !== product.id);
-      setIsFavorite(false);
-    } else {
-      // store only what you need
-      const { id, title, price, image } = product;
-      next = [...items, { id, title, price, image }];
-      setIsFavorite(true);
+    if (!userId) {
+      toast.error("Please sign in to save favorites");
+      return;
     }
-    writeFavorites(next);
+
+    setReady(false);
+
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        const response = await fetch(`/api/myfavorites/${product._id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to remove favorite");
+        }
+
+        setIsFavorite(false);
+        toast.success("Removed from favorites");
+      } else {
+        // Add to favorites
+        const response = await fetch("/api/myfavorites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId: product._id }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to add favorite");
+        }
+
+        setIsFavorite(true);
+        toast.success("Added to favorites!");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setReady(true);
+    }
   };
 
   return (
     <button
-      title="Add to Favorites"
+      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
       type="button"
       onClick={toggleFavorite}
       disabled={!ready}
-      className="rounded-lg bg-black p-3 text-md  h-10 w-10 text-white transition hover:opacity-90 active:translate-y-px cursor-pointer "
+      className="rounded-lg bg-black p-3 text-md h-10 w-10 text-white transition hover:opacity-90 active:translate-y-px cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isFavorite ? <FaStar className="text-yellow-400" /> : <FaRegStar />}
     </button>

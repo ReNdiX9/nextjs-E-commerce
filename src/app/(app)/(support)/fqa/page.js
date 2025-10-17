@@ -1,9 +1,8 @@
 "use client";
 
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import { useState } from "react";
 
+//FAQs
 const faqs = [
   {
     question: "What is ShopEase?",
@@ -73,7 +72,6 @@ export default function FAQPage() {
   };
   return (
     <>
-      <Header />
       <div className="flex justify-center my-8">
         <h1 className="text-3xl font-bold  text-center drop-shadow">Frequently Asked Questions</h1>
       </div>
@@ -115,8 +113,6 @@ export default function FAQPage() {
           </div>
         ))}
       </div>
-
-      <Footer />
     </>
   );
 }
