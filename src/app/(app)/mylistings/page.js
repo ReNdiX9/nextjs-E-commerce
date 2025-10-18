@@ -107,7 +107,7 @@ export default function MyListingsPage() {
 
           {listings.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-text-secondary text-lg mb-2">No listings yet</p>
+              <h1 className="text-text-secondary text-lg mb-2">No listings yet</h1>
               <p className="text-text-secondary text-sm mb-6">Start by creating your first listing!</p>
               <Link
                 href="/createItem"

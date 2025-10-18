@@ -1,107 +1,129 @@
 // app/product/[id]/page.js
 import Link from "next/link";
 import Image from "next/image";
-import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
-export default async function ProductPage({ params }) {
+export default async function ItemPage({ params }) {
   const { id } = params;
 
-  const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
-    next: { revalidate: 60 },
+  const res = await fetch(`http://localhost:3001/api/products/${id}`, {
+    cache: "no-store",
   });
-  if (!res.ok) notFound();
 
-  const p = await res.json();
+  if (!res.ok) {
+    notFound();
+  }
 
-  // Create product object with both id and _id for MongoDB compatibility
-  const product = {
-    _id: p.id, // Use id as _id for favorites system
-    id: p.id,
-    title: p.title,
-    price: p.price,
-    image: p.image,
-    images: [p.image], // Wrap in array for consistency
-    category: p.category,
-    description: p.description,
-  };
+  const product = await res.json();
 
   return (
-    <div className="h-full min-h-screen bg-background">
-      {/* Breadcrumb Navigation */}
-      <div className="m-3">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/" className="text-text-secondary hover:text-text-primary">
-                Home
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/products" className="text-text-secondary hover:text-text-primary">
-                Products
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-text-primary font-medium">{p.title}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <div className="min-h-screen bg-background">
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-6">
+          <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
+            Back to listings
+          </Link>
+        </nav>
 
-      <div className="mt-4 grid gap-6 md:grid-cols-2">
-        {/* Image */}
-        <div className="rounded-xl border border-card-border bg-card-bg p-4 shadow-sm">
-          <Image
-            unoptimized
-            src={p.image}
-            alt={p.title}
-            width={600}
-            height={600}
-            className="mx-auto h-72 w-auto object-contain"
-          />
-        </div>
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Image Gallery */}
+          <div className="rounded-2xl border border-card-border bg-card-bg p-6 shadow-md">
+            {product.images && product.images.length > 0 ? (
+              <div className="space-y-4">
+                {/* Main Image */}
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-background">
+                  <Image src={product.images[0]} alt={product.title} fill className="object-contain p-4" priority />
+                </div>
 
-        {/* Details */}
-        <div className="space-y-3">
-          <h1 className="text-3xl font-semibold text-text-primary text-center">{p.title}</h1>
-          <p className="text-text-secondary capitalize">Category: {p.category}</p>
-          <p className="text-2xl font-bold text-text-primary">${p.price}</p>
-          {p.rating?.rate && (
-            <p className="text-sm text-text-secondary">
-              Rating: {p.rating.rate} ({p.rating.count} reviews)
-            </p>
-          )}
-          <p className="text-text-primary leading-relaxed">{p.description}</p>
+                {/* Thumbnail Gallery (if multiple images) */}
+                {product.images.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {product.images.slice(0, 4).map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="relative aspect-square rounded-lg overflow-hidden border border-card-border cursor-pointer hover:border-text-primary transition-colors"
+                      >
+                        <Image src={img} alt={`${product.title} ${idx + 1}`} fill className="object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full aspect-square rounded-xl bg-background flex items-center justify-center">
+                <span className="text-text-secondary">No image available</span>
+              </div>
+            )}
+          </div>
 
-          <div className="flex gap-4 items-center">
+          {/* Product Details */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold text-text-primary mb-3">{product.title}</h1>
+
+              {/* Category & Condition */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary">
+                  {product.category}
+                </span>
+                {product.condition && (
+                  <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary">
+                    {product.condition}
+                  </span>
+                )}
+              </div>
+
+              {/* Price */}
+              <p className="text-4xl font-bold text-green-600 mb-4">${product.price.toFixed(2)}</p>
+            </div>
+
+            {/* Description */}
+            <div className="border-t border-card-border pt-4">
+              <h2 className="text-xl font-semibold text-text-primary mb-3">Description</h2>
+              <p className="text-text-secondary leading-relaxed whitespace-pre-wrap">
+                {product.description || "No description provided."}
+              </p>
+            </div>
+
+            {/* Seller Info */}
+            {product.sellerName && (
+              <div className="border-t border-card-border pt-4">
+                <h2 className="text-xl font-semibold text-text-primary mb-2">Seller</h2>
+                <p className="text-text-secondary">{product.sellerName}</p>
+              </div>
+            )}
+
+            {/* Listing Date */}
+            {product.createdAt && (
+              <div className="text-sm text-text-secondary">
+                Listed on{" "}
+                {new Date(product.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+            )}
+
             {/* Actions */}
-            <OfferActionsClient
-              item={{
-                id: p.id,
-                title: p.title,
-                price: p.price,
-                image: p.image,
-                description: p.description,
-              }}
-            />
-            {/* Pass product object */}
-            <FavoriteButton product={product} />
+            <div className="flex gap-4 items-center pt-4">
+              <OfferActionsClient
+                item={{
+                  id: product._id,
+                  title: product.title,
+                  price: product.price,
+                  image: product.images?.[0],
+                  description: product.description,
+                }}
+              />
+              <FavoriteButton product={product} />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

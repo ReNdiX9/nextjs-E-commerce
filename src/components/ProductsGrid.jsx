@@ -7,13 +7,14 @@ export default function ProductsGrid({ products }) {
   return (
     <Grid container spacing={3} justifyContent="center">
       {products.map((p) => (
-        <Grid key={p.id} item xs={12} sm={6} md={4} lg={3}>
+        <Grid key={p._id} item xs={12} sm={6} md={4} lg={3}>
           <Item
-            id={p.id}
+            _id={p._id}
             title={p.title}
+            condition={p.condition}
             description={p.description}
             category={p.category}
-            image={p.image}
+            images={p.images}
             price={p.price}
           />
         </Grid>

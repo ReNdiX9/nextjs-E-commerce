@@ -5,23 +5,8 @@ import { useRouter } from "next/navigation";
 import { FaRegTrashAlt } from "react-icons/fa";
 import FavoriteButton from "@/components/FavoriteButton";
 
-export default function Item({
-  id,
-  _id,
-  title,
-  category,
-  image,
-  images,
-  price,
-  detailsHref,
-  onDelete,
-  showFavorite = true,
-}) {
-  // Handle both id and _id
-  const productId = _id || id;
-  const productImage = images?.[0] || image;
-
-  const detailsUrl = detailsHref ?? (productId ? `/product/${productId}` : "#");
+export default function Item({ _id, title, price, category, images, detailsHref, onDelete, showFavorite = true }) {
+  const detailsUrl = detailsHref ?? (_id ? `/product/${_id}` : "#");
   const router = useRouter();
 
   const handleCardClick = () => {
@@ -37,12 +22,11 @@ export default function Item({
 
   // Pass the full product object with _id for MongoDB
   const product = {
-    _id: productId,
-    id: productId,
+    _id: _id,
+    id: _id,
     title,
     category,
-    image: productImage,
-    images: images || [image],
+    images: images,
     price,
   };
 
@@ -57,7 +41,7 @@ export default function Item({
     >
       {/* Picture for now later pictures */}
       <div className="rounded-lg bg-card-border flex items-center justify-center h-40">
-        <img src={productImage} alt={title} className="object-contain" width={80} />
+        <img src={images ?? null} alt={title} className="object-contain" width={80} />
       </div>
 
       {/* Title / meta */}
@@ -75,7 +59,7 @@ export default function Item({
               {showFavorite && <FavoriteButton product={product} />}
               {onDelete && (
                 <button
-                  onClick={() => onDelete(productId)}
+                  onClick={() => onDelete(_id)}
                   className="rounded-md border border-card-border px-3 py-1 text-text-secondary hover:opacity-90 active:translate-y-px transition-all cursor-pointer"
                   title="Remove from favorites"
                   aria-label="Remove from favorites"

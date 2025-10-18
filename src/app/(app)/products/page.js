@@ -13,7 +13,7 @@ export default function ProductsPage({ onLoad, filters }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("https://fakestoreapi.com/products", { cache: "no-store" });
+        const res = await fetch("/api/products", { next: { revalidate: 3600 } });
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setItems(data);

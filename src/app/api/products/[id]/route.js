@@ -1,3 +1,4 @@
+// api/products/[id]/route.js
 import { NextResponse } from "next/server";
 import { getCollection } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
@@ -5,12 +6,18 @@ import { auth } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 
-// GET  a single product
+// GET a single product
 export async function GET(_request, { params }) {
   try {
     const { id } = await params;
+
+    // Validate ObjectId format
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+    }
+
     const productsCollection = await getCollection("products");
-    const product = await productsCollection.findOne({ _id: ObjectId(id) });
+    const product = await productsCollection.findOne({ _id: new ObjectId(id) });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -23,15 +30,21 @@ export async function GET(_request, { params }) {
   }
 }
 
-// PUT update product(i am not sure if we will have it )
+// PUT update product
 export async function PUT(request, { params }) {
   try {
     const { id } = await params;
     const body = await request.json();
+
+    // Validate ObjectId format
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid product ID" }, { status: 400 });
+    }
+
     const productsCollection = await getCollection("products");
 
     const result = await productsCollection.updateOne(
-      { _id: ObjectId(id) },
+      { _id: new ObjectId(id) },
       { $set: { ...body, updatedAt: new Date() } }
     );
 
@@ -66,7 +79,7 @@ export async function DELETE(_request, { params }) {
 
     // Checking if the product exists and belongs to the user
     const product = await productsCollection.findOne({
-      _id: new ObjectId(id), //it says deprecated, but does not work if i remove new keyword
+      _id: new ObjectId(id),
     });
 
     if (!product) {
@@ -99,7 +112,6 @@ export async function DELETE(_request, { params }) {
     });
   } catch (error) {
     console.error("Error deleting product:", error);
-    // Return more detailed error info for debugging
     return NextResponse.json(
       {
         error: "Internal Server Error",
