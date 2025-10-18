@@ -8,7 +8,7 @@ import OfferActionsClient from "@/components/OfferActionsClient";
 export default async function ItemPage({ params }) {
   const { id } = params;
 
-  const res = await fetch(`http://localhost:3001/api/products/${id}`, {
+  const res = await fetch(`http://localhost:3000/api/products/${id}`, {
     cache: "no-store",
   });
 

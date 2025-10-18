@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 // GET a single product
 export async function GET(_request, { params }) {
   try {
-    const { id } = await params;
+    const { id } = params;
 
     // Validate ObjectId format
     if (!ObjectId.isValid(id)) {
@@ -33,7 +33,7 @@ export async function GET(_request, { params }) {
 // PUT update product
 export async function PUT(request, { params }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const body = await request.json();
 
     // Validate ObjectId format
@@ -68,7 +68,7 @@ export async function DELETE(_request, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = params;
 
     // Validate ObjectId format
     if (!ObjectId.isValid(id)) {
