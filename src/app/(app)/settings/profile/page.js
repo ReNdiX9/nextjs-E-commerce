@@ -3,11 +3,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { FaList, FaHeart, FaCalendarAlt } from "react-icons/fa";
+import Notifications from "@/components/Notifications";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
@@ -16,6 +16,7 @@ export default function ProfilePage() {
     favoritesCount: 0,
     joinDate: null,
   });
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // Load user statistics from localStorage
   useEffect(() => {
@@ -100,6 +101,16 @@ export default function ProfilePage() {
               <span>Joined {userStats.joinDate?.toLocaleDateString()}</span>
             </div>
           </div>
+          {/*Notifications*/}
+          {notificationsOpen ? (
+            <div className="bg-card-bg rounded-lg shadow-sm border border-card-border p-6 mb-6 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <Notifications />
+              </div>
+            </div>
+          ) : (
+            <div>no notifications</div>
+          )}
 
           {/* User Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

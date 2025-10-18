@@ -12,7 +12,7 @@ export default function Footer() {
   ];
 
   const support = [
-    { name: "FAQ", href: "/faq" },
+    { name: "FAQ", href: "/fqa" },
     { name: "Contact Us", href: "/contact" },
   ];
 

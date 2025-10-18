@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { Categories, Conditions } from "@/lib/utils";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function CreateListingPage() {
   const { userId } = useAuth();
-  const { user } = useUser();
+
+  const [userData, setUserData] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -24,8 +27,36 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const categories = Categories;
-  const conditions = Conditions;
+  //toast message
+  const onListed = () => toast.success("Your item has been listed successfully!");
+
+  //Memoize data
+  const categories = useMemo(() => Categories, []);
+  const conditions = useMemo(() => Conditions, []);
+
+  // Fetch user data from YOUR MongoDB database
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        setLoadingUser(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/users/${userId}`, { cache: "force-cache", next: { revalidate: 1800 } });
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,6 +89,7 @@ export default function CreateListingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    onListed();
 
     // Validation
     if (!formData.title.trim()) {
@@ -88,6 +120,12 @@ export default function CreateListingPage() {
       // In production, upload to Cloudinary
       const imageUrls = images.map((_, index) => `https://placehold.co/600x400?text=Item+${index + 1}`);
 
+      // Build seller name from YOUR MongoDB user data
+      const sellerName =
+        userData?.firstName && userData?.lastName
+          ? `${userData.firstName} ${userData.lastName}`
+          : userData?.firstName || "Anonymous User";
+
       const listingData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -97,8 +135,8 @@ export default function CreateListingPage() {
         location: formData.location.trim() || "Not specified",
         images: imageUrls,
         sellerId: userId,
-        sellerName: user?.username || "Unknown", //fix later
-        sellerEmail: user?.emailAddresses?.[0]?.emailAddress || "",
+        sellerName: sellerName,
+        sellerEmail: userData?.email || "",
       };
 
       const response = await fetch("/api/products", {
@@ -113,11 +151,7 @@ export default function CreateListingPage() {
         throw new Error(result.error || "Failed to create listing");
       }
 
-      alert("Listing created successfully!");
-    } catch (err) {
-      setError(err.message || "Failed to create listing");
-    } finally {
-      setLoading(false);
+      // Reset form
       setFormData({
         title: "",
         description: "",
@@ -126,6 +160,12 @@ export default function CreateListingPage() {
         condition: "",
         location: "",
       });
+      setImages([]);
+      setImagePreviews([]);
+    } catch (err) {
+      setError(err.message || "Failed to create listing");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,8 +185,18 @@ export default function CreateListingPage() {
     );
   }
 
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      {/*Toast message*/}
+      <ToastContainer draggable position="top-center" theme="colored" autoClose={2000} />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-card-bg rounded-2xl shadow-md border border-card-border p-6 md:p-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">List Your Item</h1>
@@ -302,7 +352,7 @@ export default function CreateListingPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4  rounded-lg">
+              <div className="p-4 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
