@@ -27,14 +27,11 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  //toast message
   const onListed = () => toast.success("Your item has been listed successfully!");
 
-  //Memoize data
   const categories = useMemo(() => Categories, []);
   const conditions = useMemo(() => Conditions, []);
 
-  // Fetch user data from YOUR MongoDB database
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId) {
@@ -43,7 +40,7 @@ export default function CreateListingPage() {
       }
 
       try {
-        const response = await fetch(`/api/users/${userId}`, { cache: "force-cache", next: { revalidate: 1800 } });
+        const response = await fetch(`/api/users/${userId}`);
         if (response.ok) {
           const data = await response.json();
           setUserData(data);
@@ -74,7 +71,6 @@ export default function CreateListingPage() {
     const newImages = [...images, ...files];
     setImages(newImages);
 
-    // Create preview URLs
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
@@ -89,7 +85,6 @@ export default function CreateListingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    onListed();
 
     // Validation
     if (!formData.title.trim()) {
@@ -108,24 +103,44 @@ export default function CreateListingPage() {
       setError("Condition is required");
       return;
     }
-    if (!formData.location) {
+    if (!formData.location.trim()) {
       setError("Location is required");
+      return;
+    }
+    //Logic for images count
+    if (images.length === 0) {
+      setError("At least one image is required");
       return;
     }
 
     setLoading(true);
 
     try {
-      // For now, using placeholder images
-      // In production, upload to Cloudinary
-      const imageUrls = images.map((_, index) => `https://placehold.co/600x400?text=Item+${index + 1}`);
+      // STEP 1: Upload images to Cloudinary
+      const imageFormData = new FormData();
+      images.forEach((image) => {
+        imageFormData.append("images", image);
+      });
 
-      // Build seller name from YOUR MongoDB user data
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: imageFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || "Failed to upload images");
+      }
+
+      const { imageUrls } = await uploadResponse.json();
+
+      // STEP 2: Build seller name
       const sellerName =
         userData?.firstName && userData?.lastName
           ? `${userData.firstName} ${userData.lastName}`
           : userData?.firstName || "Anonymous User";
 
+      // STEP 3: Create product listing with Cloudinary URLs
       const listingData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -150,6 +165,9 @@ export default function CreateListingPage() {
       if (!response.ok) {
         throw new Error(result.error || "Failed to create listing");
       }
+
+      // Success!
+      onListed();
 
       // Reset form
       setFormData({
@@ -195,7 +213,6 @@ export default function CreateListingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/*Toast message*/}
       <ToastContainer draggable position="top-center" theme="colored" autoClose={2000} />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-card-bg rounded-2xl shadow-md border border-card-border p-6 md:p-8">

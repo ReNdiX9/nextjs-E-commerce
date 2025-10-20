@@ -53,8 +53,8 @@ export default function Item({ _id, title, price, category, images, detailsHref,
         {category && <p className="mt-1 text-sm text-text-secondary">{category}</p>}
 
         <div className="mt-3 flex items-center">
-          <div className="flex items-center justify-center gap-20 w-full">
-            <p className="text-xs text-text-secondary font-semibold select-none">${price?.toFixed(2) || "0.00"}</p>
+          <div className="flex items-center justify-between  w-full">
+            <p className="text-sm text-text-secondary font-semibold select-none">${price?.toFixed(2) || "0.00"}</p>
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               {showFavorite && <FavoriteButton product={product} />}
               {onDelete && (

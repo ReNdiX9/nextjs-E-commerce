@@ -5,7 +5,7 @@
 import ProductsGrid from "@/components/ProductsGrid";
 import { useEffect, useState, useMemo } from "react";
 
-export default function ProductsPage({ onLoad, filters }) {
+export default function ProductsPage({ filters }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -13,18 +13,17 @@ export default function ProductsPage({ onLoad, filters }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/products", { next: { revalidate: 3600 } });
+        const res = await fetch("/api/products");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setItems(data);
-        onLoad?.(data);
       } catch (e) {
         setErr(e.message || "Error");
       } finally {
         setLoading(false);
       }
     })();
-  }, [onLoad]);
+  }, []);
 
   const filtered = useMemo(() => {
     const q = (filters?.q || "").toLowerCase().trim();
