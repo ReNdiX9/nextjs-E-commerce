@@ -18,9 +18,6 @@ export default function OfferActionsClient({ item }) {
           Send Offer
         </button>
 
-        <button className="rounded-xl bg-white px-4 py-2.5 text-sm font-medium transition hover:opacity-90 active:translate-y-px hover:scale-103 text-black border border-neutral-400 hover:border-neutral-900">
-          Send Message
-        </button>
       </div>
 
       <SendOfferDialog
