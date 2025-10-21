@@ -113,7 +113,7 @@ export default function SignIn() {
             className={`${inputBase} ${errors.password ? "border-red-500" : "border-neutral-300"} pr-11`}
             {...register("password", {
               required: "Password is required",
-              minLength: { value: 6, message: "At least 6 characters" },
+              minLength: { value: 8, message: "At least 8 characters" },
             })}
           />
           <button
