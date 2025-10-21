@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 
 import {
   DropdownMenu,
@@ -67,6 +67,10 @@ export default function Header() {
               </Link>
             </li>
           </SignedOut>
+          {/* Debug: show user email when available */}
+          <li className="ml-2 text-sm text-text-secondary hidden md:block">
+            <UserEmailDebug />
+          </li>
         </ul>
 
         {/* Mobile Navigation Dropdown */}
@@ -112,4 +116,15 @@ export default function Header() {
       </nav>
     </header>
   );
+}
+
+function UserEmailDebug() {
+  const { isLoaded, user } = useUser();
+
+  if (!isLoaded) return null;
+
+  if (!user) return <span className="text-text-secondary">Not signed in</span>;
+
+  const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || user.email || "";
+  return <span className="text-text-secondary">{email}</span>;
 }
