@@ -101,10 +101,10 @@ export default function MyFavourites() {
               {items.map((item) => (
                 <Item
                   key={item._id}
-                  id={item._id}
+                  _id={item._id}
                   title={item.title}
                   category={item.category}
-                  image={item.images?.[0] || item.image}
+                  images={item.images || (item.image ? [item.image] : [])}
                   price={item.price}
                   onDelete={remove}
                   showFavorite={false}
