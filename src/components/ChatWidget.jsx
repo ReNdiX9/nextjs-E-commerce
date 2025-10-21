@@ -1,34 +1,73 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { db, auth, signInAnonymously, onAuthStateChanged } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   // Use external control if provided, otherwise use internal state
   const isWidgetOpen = externalIsOpen !== undefined ? externalIsOpen : isOpen;
   const handleClose = onClose || (() => setIsOpen(false));
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Welcome to the chat! How can I help you today?", userEmail: "Support", timestamp: new Date() }
-  ]);
+  
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
-  const sendMessage = (e) => {
+  // Authentication setup
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        setLoading(false);
+      } else {
+        // Sign in anonymously if no user
+        signInAnonymously(auth).catch(console.error);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Real-time messages listener
+  useEffect(() => {
+    if (!user) return;
+
+    const messagesRef = collection(db, 'messages');
+    const q = query(messagesRef, orderBy('timestamp', 'asc'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const messagesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp?.toDate() || new Date()
+      }));
+      setMessages(messagesData);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !user) return;
 
-    const message = {
-      id: Date.now(),
-      text: newMessage,
-      userEmail: "You",
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, message]);
-    setNewMessage('');
+    try {
+      await addDoc(collection(db, 'messages'), {
+        text: newMessage,
+        userEmail: user.email || user.displayName || 'Anonymous',
+        userId: user.uid,
+        timestamp: serverTimestamp()
+      });
+      setNewMessage('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   return (
@@ -64,26 +103,29 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {messages.length === 0 ? (
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-600">No messages yet. Start the conversation!</p>
-              </div>
+            {loading ? (
+              <div className="text-center text-gray-500">Loading messages...</div>
+            ) : messages.length === 0 ? (
+              <div className="text-center text-gray-500">No messages yet. Start the conversation!</div>
             ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`p-2 rounded-lg max-w-xs ${
-                    message.userEmail === "You"
-                      ? 'bg-blue-100 ml-auto text-right'
-                      : 'bg-gray-100'
-                  }`}
-                >
-                  <p className="text-sm">{message.text}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {message.userEmail} • {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </div>
-              ))
+              messages.map((message) => {
+                const isCurrentUser = user && message.userId === user.uid;
+                return (
+                  <div
+                    key={message.id}
+                    className={`p-2 rounded-lg max-w-xs ${
+                      isCurrentUser
+                        ? 'bg-blue-100 ml-auto text-right'
+                        : 'bg-gray-100'
+                    }`}
+                  >
+                    <p className="text-sm">{message.text}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {message.userEmail} • {message.timestamp.toLocaleTimeString()}
+                    </p>
+                  </div>
+                );
+              })
             )}
           </div>
 
