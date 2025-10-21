@@ -17,5 +17,5 @@ export const Categories = [
   "Vehicles",
   "Other",
 ];
-
+//conditions
 export const Conditions = ["New", "Like New", "Good", "Fair", "For Parts"];

@@ -6,7 +6,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 
-//GET all products
+//GET all products - method to display all products on the home page
 export async function GET() {
   try {
     const productsCollection = await getCollection("products");
@@ -21,15 +21,15 @@ export async function GET() {
   }
 }
 
-//POST new product
+//POST  - method to list new product
 export async function POST(request) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
+    // const client = await clerkClient();
+    //const user = await client.users.getUser(userId);
 
     const body = await request.json();
     const productsCollection = await getCollection("products");

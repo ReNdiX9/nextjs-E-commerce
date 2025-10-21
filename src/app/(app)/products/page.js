@@ -1,31 +1,33 @@
 // products/page.js
-/*This page */
 "use client";
 
 import ProductsGrid from "@/components/ProductsGrid";
 import { useEffect, useState, useMemo } from "react";
 
-export default function ProductsPage({ onLoad, filters }) {
+export default function ProductsPage({ filters }) {
+  //Items array
   const [items, setItems] = useState([]);
+  //Loading state
   const [loading, setLoading] = useState(true);
+  //Error
   const [err, setErr] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("https://fakestoreapi.com/products", { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed to fetch");
+        const res = await fetch("/api/products");
+        if (!res.ok) throw new Error("Server is currently down, sorry for the inconvenience!"); //failed to fetch
         const data = await res.json();
         setItems(data);
-        onLoad?.(data);
       } catch (e) {
         setErr(e.message || "Error");
       } finally {
         setLoading(false);
       }
     })();
-  }, [onLoad]);
+  }, []);
 
+  //useMemo to prevent extra rerenders
   const filtered = useMemo(() => {
     const q = (filters?.q || "").toLowerCase().trim();
     const cats = Array.isArray(filters?.categories) ? filters.categories : [];

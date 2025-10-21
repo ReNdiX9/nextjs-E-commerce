@@ -47,8 +47,24 @@ export default function SignIn() {
       });
 
       if (res?.status === "complete" && res?.createdSessionId) {
+        console.debug("Sign in successful, activating session...", res);
         await setActive({ session: res.createdSessionId });
-        await fetch("/api/users", { method: "POST" });
+
+        // Force a client-side refresh so Clerk React hooks (SignedIn / useUser) pick up the active session
+        try {
+          await fetch("/api/users", { method: "POST" });
+        } catch (err) {
+          console.warn("Failed to POST /api/users after sign-in:", err);
+        }
+
+        // Refresh the current route to make sure client-side auth state is updated
+        try {
+          router.refresh();
+        } catch (err) {
+          console.warn("router.refresh() failed:", err);
+        }
+
+        // Navigate to home (or settings if you prefer)
         router.push("/");
       } else {
         setServerMsg("Additional step required. Check your email or follow the next step.");

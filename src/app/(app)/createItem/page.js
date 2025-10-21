@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { Categories, Conditions } from "@/lib/utils";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function CreateListingPage() {
   const { userId } = useAuth();
-  const { user } = useUser();
+
+  const [userData, setUserData] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -24,8 +27,33 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const categories = Categories;
-  const conditions = Conditions;
+  const onListed = () => toast.success("Your item has been listed successfully!");
+
+  const categories = useMemo(() => Categories, []);
+  const conditions = useMemo(() => Conditions, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        setLoadingUser(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/users/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +71,6 @@ export default function CreateListingPage() {
     const newImages = [...images, ...files];
     setImages(newImages);
 
-    // Create preview URLs
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
@@ -76,18 +103,44 @@ export default function CreateListingPage() {
       setError("Condition is required");
       return;
     }
-    if (!formData.location) {
+    if (!formData.location.trim()) {
       setError("Location is required");
+      return;
+    }
+    //Logic for images count
+    if (images.length === 0) {
+      setError("At least one image is required");
       return;
     }
 
     setLoading(true);
 
     try {
-      // For now, using placeholder images
-      // In production, upload to Cloudinary
-      const imageUrls = images.map((_, index) => `https://placehold.co/600x400?text=Item+${index + 1}`);
+      // STEP 1: Upload images to Cloudinary
+      const imageFormData = new FormData();
+      images.forEach((image) => {
+        imageFormData.append("images", image);
+      });
 
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: imageFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || "Failed to upload images");
+      }
+
+      const { imageUrls } = await uploadResponse.json();
+
+      // STEP 2: Build seller name
+      const sellerName =
+        userData?.firstName && userData?.lastName
+          ? `${userData.firstName} ${userData.lastName}`
+          : userData?.firstName || "Anonymous User";
+
+      // STEP 3: Create product listing with Cloudinary URLs
       const listingData = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -97,8 +150,8 @@ export default function CreateListingPage() {
         location: formData.location.trim() || "Not specified",
         images: imageUrls,
         sellerId: userId,
-        sellerName: user?.username || "Unknown", //fix later
-        sellerEmail: user?.emailAddresses?.[0]?.emailAddress || "",
+        sellerName: sellerName,
+        sellerEmail: userData?.email || "",
       };
 
       const response = await fetch("/api/products", {
@@ -113,11 +166,10 @@ export default function CreateListingPage() {
         throw new Error(result.error || "Failed to create listing");
       }
 
-      alert("Listing created successfully!");
-    } catch (err) {
-      setError(err.message || "Failed to create listing");
-    } finally {
-      setLoading(false);
+      // Success!
+      onListed();
+
+      // Reset form
       setFormData({
         title: "",
         description: "",
@@ -126,6 +178,12 @@ export default function CreateListingPage() {
         condition: "",
         location: "",
       });
+      setImages([]);
+      setImagePreviews([]);
+    } catch (err) {
+      setError(err.message || "Failed to create listing");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,8 +203,17 @@ export default function CreateListingPage() {
     );
   }
 
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      <ToastContainer draggable position="top-center" theme="colored" autoClose={2000} />
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-card-bg rounded-2xl shadow-md border border-card-border p-6 md:p-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">List Your Item</h1>
@@ -302,7 +369,7 @@ export default function CreateListingPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4  rounded-lg">
+              <div className="p-4 rounded-lg">
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}

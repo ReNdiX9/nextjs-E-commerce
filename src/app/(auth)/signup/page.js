@@ -34,7 +34,7 @@ export default function SignUp() {
   const [serverMsg, setServerMsg] = useState("");
   const [passwordShow, setPasswordShow] = useState(false);
   const [needCode, setNeedCode] = useState(false);
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(" ");
 
   const inputBase =
     "w-full rounded-lg border border-input-border bg-input-bg px-3 py-2 text-text-primary placeholder-text-secondary outline-none focus:border-text-primary hover:border-text-primary transition-all";
@@ -254,7 +254,7 @@ export default function SignUp() {
             type="text"
             placeholder="123456"
             className={`${inputBase} border-neutral-300`}
-            value={code}
+            value={code ?? " "}
             onChange={(e) => setCode(e.target.value)}
           />
 

@@ -10,9 +10,6 @@ import { useState } from "react";
 
 export default function Homepage() {
   const [filters, setFilters] = useState({ q: "", categories: [], min: null, max: null });
-  const [products, setProducts] = useState([]);
-
-  const showItems = (items) => setProducts(items);
 
   return (
     <div className="px-2 bg-background w-full h-full">
@@ -22,7 +19,7 @@ export default function Homepage() {
           <SideBar onApply={setFilters} />
         </div>
         <section className="md:col-span-4">
-          <ProductsPage onLoad={showItems} filters={filters} />
+          <ProductsPage filters={filters} />
         </section>
       </main>
       <Footer />
