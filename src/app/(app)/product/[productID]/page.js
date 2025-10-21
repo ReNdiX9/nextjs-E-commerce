@@ -18,43 +18,12 @@ import {
 export default async function ProductPage({ params }) {
   const { id } = params;
 
-  // Mock product data as fallback
-  const mockProduct = {
-    id: id,
-    title: "Sample Product",
-    price: 29.99,
-    description: "This is a sample product description for testing purposes.",
-    category: "electronics",
-    image: "https://via.placeholder.com/300x300?text=Product+Image",
-    rating: {
-      rate: 4.5,
-      count: 120
-    }
-  };
+  const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) notFound();
 
-  let p = mockProduct; // Default to mock data
-
-  try {
-    const res = await fetch(`https://fakestoreapi.com/products/${id}`, {
-      next: { revalidate: 60 },
-    });
-    
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim() !== '') {
-        try {
-          const apiProduct = JSON.parse(text);
-          if (apiProduct && apiProduct.id) {
-            p = apiProduct; // Use API data if successful
-          }
-        } catch (parseError) {
-          console.log('Using mock data due to JSON parse error');
-        }
-      }
-    }
-  } catch (error) {
-    console.log('Using mock data due to fetch error:', error.message);
-  }
+  const p = await res.json();
 
   return (
     <div className=" h-full min-h-screen  bg-background">
@@ -115,12 +84,6 @@ export default async function ProductPage({ params }) {
                 price: p.price,
                 image: p.image,
                 description: p.description,
-              }}
-              seller={{
-                id: 'seller-123',
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john@example.com'
               }}
             />
             <FavoriteButton product={p} />
