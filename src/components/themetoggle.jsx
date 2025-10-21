@@ -3,7 +3,6 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-
 import { useState, useEffect } from "react";
 
 export default function ThemeToggle() {

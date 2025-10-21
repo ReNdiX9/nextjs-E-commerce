@@ -1,25 +1,18 @@
 // src/components/SideBar.jsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiSearch, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { Categories, Conditions } from "@/lib/utils";
 
 export default function SideBar({ onApply }) {
   // states
-  const [categories, setCategories] = useState([]);
   const [showAllCats, setShowAllCats] = useState(false);
   const [selected, setSelected] = useState(new Set());
+  const [selectedConditions, setSelectedConditions] = useState(new Set());
   const [q, setQ] = useState("");
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
-
-  // fetch categories
-  useEffect(() => {
-    fetch("https://fakestoreapi.com/products/categories")
-      .then((r) => r.json())
-      .then((data) => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => setCategories([]));
-  }, []);
 
   const toggleCat = (cat) => {
     const next = new Set(selected);
@@ -27,10 +20,17 @@ export default function SideBar({ onApply }) {
     setSelected(next);
   };
 
+  const toggleCondition = (condition) => {
+    const next = new Set(selectedConditions);
+    next.has(condition) ? next.delete(condition) : next.add(condition);
+    setSelectedConditions(next);
+  };
+
   const apply = () => {
     onApply?.({
       q,
       categories: [...selected],
+      conditions: [...selectedConditions],
       min: min || null,
       max: max || null,
     });
@@ -38,16 +38,17 @@ export default function SideBar({ onApply }) {
 
   const reset = () => {
     setSelected(new Set());
+    setSelectedConditions(new Set());
     setQ("");
     setMin("");
     setMax("");
-    onApply?.({ q: "", categories: [], min: null, max: null });
+    onApply?.({ q: "", categories: [], conditions: [], min: null, max: null });
   };
 
   const inputBase =
     "w-full rounded-xl border border-input-border bg-input-bg/80 px-3 py-2.5 text-sm outline-none transition placeholder:text-text-secondary hover:border-text-primary focus:border-text-primary text-text-primary";
 
-  const visibleCats = showAllCats ? categories : categories.slice(0, 6);
+  const visibleCats = showAllCats ? Categories : Categories.slice(0, 6);
 
   return (
     <aside className="sticky top-20 rounded-2xl border border-card-border bg-card-bg/70 p-5 shadow-md backdrop-blur-sm">
@@ -78,50 +79,66 @@ export default function SideBar({ onApply }) {
       {/* Categories */}
       <div className="mb-5">
         <p className="mb-2 text-md text-text-primary  font-semibold">Categories</p>
-        {!categories.length ? (
-          <div className="space-y-2">
-            <p className="text-text-secondary text-xs">No categories found</p>
-          </div>
-        ) : (
-          <>
-            <div className="flex flex-wrap gap-2">
-              {visibleCats.map((cat) => {
-                const active = selected.has(cat);
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => toggleCat(cat)}
-                    className={[
-                      "rounded-full border px-3 py-1.5 text-sm transition cursor-pointer",
-                      active
-                        ? "border-text-primary bg-text-primary text-background shadow"
-                        : "border-card-border text-text-secondary hover:border-text-primary",
-                    ].join(" ")}
-                  >
-                    <span className="capitalize">{cat}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {categories.length > 6 && (
+        <div className="flex flex-wrap gap-2">
+          {visibleCats.map((cat) => {
+            const active = selected.has(cat);
+            return (
               <button
-                onClick={() => setShowAllCats((s) => !s)}
-                className="mt-3 inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
+                key={cat}
+                onClick={() => toggleCat(cat)}
+                className={[
+                  "rounded-full border px-3 py-1.5 text-sm transition cursor-pointer",
+                  active
+                    ? "border-text-primary bg-text-primary text-background shadow"
+                    : "border-card-border text-text-secondary hover:border-text-primary",
+                ].join(" ")}
               >
-                {showAllCats ? (
-                  <>
-                    Show less <FiChevronUp />
-                  </>
-                ) : (
-                  <>
-                    Show all <FiChevronDown />
-                  </>
-                )}
+                <span className="capitalize">{cat}</span>
               </button>
+            );
+          })}
+        </div>
+
+        {Categories.length > 6 && (
+          <button
+            onClick={() => setShowAllCats((s) => !s)}
+            className="mt-3 inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary"
+          >
+            {showAllCats ? (
+              <>
+                Show less <FiChevronUp />
+              </>
+            ) : (
+              <>
+                Show all <FiChevronDown />
+              </>
             )}
-          </>
+          </button>
         )}
+      </div>
+
+      {/* Conditions */}
+      <div className="mb-5">
+        <p className="mb-2 text-md text-text-primary font-semibold">Condition</p>
+        <div className="flex flex-wrap gap-2">
+          {Conditions.map((condition) => {
+            const active = selectedConditions.has(condition);
+            return (
+              <button
+                key={condition}
+                onClick={() => toggleCondition(condition)}
+                className={[
+                  "rounded-full border px-3 py-1.5 text-sm transition cursor-pointer",
+                  active
+                    ? "border-text-primary bg-text-primary text-background shadow"
+                    : "border-card-border text-text-secondary hover:border-text-primary",
+                ].join(" ")}
+              >
+                <span>{condition}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Price */}

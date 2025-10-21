@@ -35,6 +35,7 @@ export default function SignUp() {
   const [passwordShow, setPasswordShow] = useState(false);
   const [needCode, setNeedCode] = useState(false);
   const [code, setCode] = useState("");
+  const [verifyError, setVerifyError] = useState("");
 
   const inputBase =
     "w-full rounded-lg border border-input-border bg-input-bg px-3 py-2 text-text-primary placeholder-text-secondary outline-none focus:border-text-primary hover:border-text-primary transition-all";
@@ -80,6 +81,7 @@ export default function SignUp() {
     e.preventDefault();
     if (!isLoaded) return;
     setServerMsg("");
+    setVerifyError(""); // Clear previous errors
 
     try {
       const res = await signUp.attemptEmailAddressVerification({ code });
@@ -103,7 +105,7 @@ export default function SignUp() {
       }
     } catch (err) {
       const msg = err?.errors?.[0]?.longMessage || err?.message || "Invalid or expired code. Try again.";
-      setError("root", { message: msg });
+      setVerifyError(msg);
     }
   };
 
@@ -190,7 +192,7 @@ export default function SignUp() {
               className={`${inputBase} ${errors.password ? "border-red-500" : "border-neutral-300"} pr-11`}
               {...register("password", {
                 required: "Password is required",
-                minLength: { value: 6, message: "At least 6 characters" },
+                minLength: { value: 8, message: "At least 8 characters" },
               })}
             />
             <button
@@ -254,11 +256,11 @@ export default function SignUp() {
             type="text"
             placeholder="123456"
             className={`${inputBase} border-neutral-300`}
-            value={code}
+            value={code ?? ""}
             onChange={(e) => setCode(e.target.value)}
           />
 
-          {errors.root && <p className="mt-3 text-sm text-red-600">{errors.root.message}</p>}
+          {verifyError && <p className="mt-3 text-sm text-red-600">{verifyError}</p>}
           {serverMsg && <p className="mt-3 text-sm text-emerald-700">{serverMsg}</p>}
 
           <button
