@@ -1,64 +1,81 @@
-// app/product/[id]/page.js
-import Link from "next/link";
+// app/products/[id]/page.js
+"use client";
+
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
+import ImageCarousel from "@/components/ImageCarousel";
 
-export default async function ItemPage({ params }) {
-  const { id } = params;
+export default function ItemPage() {
+  const params = useParams();
+  const router = useRouter();
+  const { id: fullId } = params;
+  const id = fullId.split("-")[0];
 
-  const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-    cache: "no-store",
-  });
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!res.ok) {
-    notFound();
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(`/api/products/${id}`);
+
+        if (!res.ok) {
+          throw new Error("Product not found");
+        }
+
+        const data = await res.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      fetchProduct();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-text-primary">Loading...</div>
+      </div>
+    );
   }
 
-  const product = await res.json();
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || "Product not found"}</p>
+          <button onClick={() => router.push("/products")} className="text-text-secondary hover:text-text-primary">
+            ← Back to products
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6">
-          <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
-            Back to listings
-          </Link>
-        </nav>
-
         <div className="grid gap-8 md:grid-cols-2">
           {/* Image Gallery */}
-          <div className="rounded-2xl border border-card-border bg-card-bg p-6 shadow-md">
-            {product.images && product.images.length > 0 ? (
-              <div className="space-y-4">
-                {/* Main Image */}
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-background">
-                  <Image src={product.images[0]} alt={product.title} fill className="object-contain p-4" priority />
-                </div>
-
-                {/* Thumbnail Gallery (if multiple images) */}
-                {product.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {product.images.slice(0, 4).map((img, idx) => (
-                      <div
-                        key={idx}
-                        className="relative aspect-square rounded-lg overflow-hidden border border-card-border cursor-pointer hover:border-text-primary transition-colors"
-                      >
-                        <Image src={img} alt={`${product.title} ${idx + 1}`} fill className="object-cover" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-full aspect-square rounded-xl bg-background flex items-center justify-center">
-                <span className="text-text-secondary">No image available</span>
-              </div>
-            )}
-          </div>
-
+          {!product.images.length == 0 ? (
+            <div className="rounded-2xl border border-card-border bg-card-bg p-6 shadow-md">
+              <ImageCarousel images={product.images} title={product.title} />
+            </div>
+          ) : (
+            <div className="w-full aspect-square rounded-xl bg-background flex items-center justify-center">
+              <span className="text-text-secondary">No image available</span>
+            </div>
+          )}
           {/* Product Details */}
           <div className="space-y-6">
             <div>
@@ -66,18 +83,18 @@ export default async function ItemPage({ params }) {
 
               {/* Category & Condition */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary">
+                <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary capitalize">
                   {product.category}
                 </span>
                 {product.condition && (
-                  <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary">
+                  <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary capitalize">
                     {product.condition}
                   </span>
                 )}
               </div>
 
               {/* Price */}
-              <p className="text-4xl font-bold text-green-600 mb-4">${product.price.toFixed(2)}</p>
+              <p className="text-4xl font-bold text-green-600 mb-4">${product.price?.toFixed(2) || "0.00"}</p>
             </div>
 
             {/* Description */}

@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 // GET a single product
 export async function GET(_request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // Validate ObjectId format
     if (!ObjectId.isValid(id)) {

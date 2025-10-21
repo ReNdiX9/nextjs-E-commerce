@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation";
 import { FaRegTrashAlt } from "react-icons/fa";
 import FavoriteButton from "@/components/FavoriteButton";
 
-export default function Item({ _id, title, price, category, images, detailsHref, onDelete, showFavorite = true }) {
-  const detailsUrl = detailsHref ?? (_id ? `/product/${_id}` : "#");
+export default function Item({ _id, title, price, category, condition, images, onDelete, showFavorite = true }) {
+  const slug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-") // Replace non-alphanumeric with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+
+  const detailsUrl = `/products/${_id}-${slug}`;
   const router = useRouter();
 
   const handleCardClick = () => {
@@ -26,6 +31,7 @@ export default function Item({ _id, title, price, category, images, detailsHref,
     id: _id,
     title,
     category,
+    condition,
     images: images,
     price,
   };
@@ -39,22 +45,32 @@ export default function Item({ _id, title, price, category, images, detailsHref,
       className="rounded-xl border border-card-border bg-card-bg p-3 shadow-sm transition hover:shadow-lg w-60 cursor-pointer"
       title={title}
     >
-      {/* Picture for now later pictures */}
-      <div className="rounded-lg bg-card-border flex items-center justify-center h-40">
-        <img src={images ?? null} alt={title} className="object-contain" width={80} />
+      {/* Image  */}
+      <div className="rounded-lg bg-card-border flex items-center justify-center h-40 ">
+        <img
+          src={Array.isArray(images) ? images[0] : images}
+          alt={title}
+          className="object-cover h-full w-full rounded-lg"
+        />
       </div>
 
-      {/* Title / meta */}
-      <div className="mt-3">
-        <h3 className="text-base font-semibold">
+      {/* Content of the card*/}
+      <div className="mt-1">
+        {/*Title*/}
+        <h3 className="text-lg font-bold">
           <span className="block truncate text-text-primary">{title}</span>
         </h3>
+        {/*Category*/}
+        <p className=" text-sm text-text-secondary">{category}</p>
+        {/* Condition */}
+        <p className="text-sm text-text-secondary capitalize">
+          <span>{condition}</span>
+        </p>
 
-        {category && <p className="mt-1 text-sm text-text-secondary">{category}</p>}
-
-        <div className="mt-3 flex items-center">
+        {/*Price and buttons*/}
+        <div className="mt-1 flex items-center">
           <div className="flex items-center justify-between  w-full">
-            <p className="text-sm text-text-secondary font-semibold select-none">${price?.toFixed(2) || "0.00"}</p>
+            <p className="text-sm  font-semibold select-none">${price?.toFixed(2) || "0.00"}</p>
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               {showFavorite && <FavoriteButton product={product} />}
               {onDelete && (

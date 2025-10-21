@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { FaRegStar, FaStar } from "react-icons/fa";
-import { toast } from "react-toastify";
 
 export default function FavoriteButton({ product }) {
   const { userId } = useAuth();
@@ -67,7 +66,6 @@ export default function FavoriteButton({ product }) {
         }
 
         setIsFavorite(false);
-        toast.success("Removed from favorites");
       } else {
         // Add to favorites
         const response = await fetch("/api/myfavorites", {
@@ -84,11 +82,9 @@ export default function FavoriteButton({ product }) {
         }
 
         setIsFavorite(true);
-        toast.success("Added to favorites!");
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
-      toast.error(error.message || "Something went wrong");
     } finally {
       setReady(true);
     }
