@@ -8,12 +8,16 @@ import { Card } from '@/components/ui/card';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, where, or } from 'firebase/firestore';
 import { useUser } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
 
 export default function ChatPage() {
   const { user, isLoaded } = useUser();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [targetUserId, setTargetUserId] = useState(null);
+  const [targetUserName, setTargetUserName] = useState('');
 
   // Authentication setup
   useEffect(() => {
@@ -22,7 +26,16 @@ export default function ChatPage() {
     }
   }, [isLoaded]);
 
-  // Real-time messages listener - show all messages for now (general chat)
+  // Get target user from URL parameters
+  useEffect(() => {
+    const userId = searchParams.get('user');
+    if (userId) {
+      setTargetUserId(userId);
+      setTargetUserName('User'); // We'll get the actual name from messages
+    }
+  }, [searchParams]);
+
+  // Real-time messages listener
   useEffect(() => {
     if (!user) return;
 
@@ -35,11 +48,30 @@ export default function ChatPage() {
         ...doc.data(),
         timestamp: doc.data().timestamp?.toDate() || new Date()
       }));
-      setMessages(messagesData);
+
+      if (targetUserId) {
+        // Filter messages for specific user conversation
+        const conversationMessages = messagesData.filter(msg => 
+          (msg.senderId === user.id && msg.recipientId === targetUserId) ||
+          (msg.senderId === targetUserId && msg.recipientId === user.id)
+        );
+        setMessages(conversationMessages);
+        
+        // Get target user name from messages
+        const targetMessage = messagesData.find(msg => 
+          msg.senderId === targetUserId || msg.recipientId === targetUserId
+        );
+        if (targetMessage) {
+          setTargetUserName(targetMessage.senderId === targetUserId ? targetMessage.senderName : targetMessage.recipientName);
+        }
+      } else {
+        // Show all messages for general chat
+        setMessages(messagesData);
+      }
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, targetUserId]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -50,8 +82,8 @@ export default function ChatPage() {
         text: newMessage,
         senderId: user.id,
         senderName: user.fullName || user.emailAddresses[0]?.emailAddress || 'User',
-        recipientId: null, // General chat - no specific recipient
-        recipientName: 'Everyone',
+        recipientId: targetUserId || null, // Specific user or general chat
+        recipientName: targetUserName || 'Everyone',
         timestamp: serverTimestamp()
       });
       setNewMessage('');
@@ -68,8 +100,12 @@ export default function ChatPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Live Chat</h1>
-          <p className="text-gray-600">Connect with other users in real-time</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
+          </h1>
+          <p className="text-gray-600">
+            {targetUserId ? 'Private conversation' : 'Connect with other users in real-time'}
+          </p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -79,9 +115,11 @@ export default function ChatPage() {
               {/* Header */}
               <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center gap-3">
                 <MessageCircle className="w-6 h-6" />
-                <h2 className="text-xl font-semibold">Live Chat</h2>
+                <h2 className="text-xl font-semibold">
+                  {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
+                </h2>
                 <span className="ml-auto text-sm opacity-90">
-                  Chat with support
+                  {targetUserId ? 'Private conversation' : 'Chat with support'}
                 </span>
               </div>
 

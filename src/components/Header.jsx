@@ -22,7 +22,6 @@ export default function Header() {
     { name: "My Listings", link: "/mylistings" },
     { name: "Favorites", link: "/myfavorites" },
     { name: "Messages", link: "/messages" },
-    { name: "Chat", link: "/chat" },
     { name: "Settings", link: "/settings" },
   ];
 
