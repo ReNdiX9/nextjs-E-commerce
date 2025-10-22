@@ -97,44 +97,67 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
-          </h1>
-          <p className="text-gray-600">
-            {targetUserId ? 'Private conversation' : 'Connect with other users in real-time'}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
+              </h1>
+              <p className="text-gray-600 text-lg">
+                {targetUserId ? 'Private conversation' : 'Connect with other users in real-time'}
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-600">Online</span>
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Chat Window */}
           <div className="lg:col-span-2">
-            <Card className="w-full h-[600px] flex flex-col">
+            <Card className="w-full h-[700px] flex flex-col bg-white shadow-2xl border-0 rounded-3xl overflow-hidden">
               {/* Header */}
-              <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center gap-3">
-                <MessageCircle className="w-6 h-6" />
-                <h2 className="text-xl font-semibold">
-                  {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
-                </h2>
-                <span className="ml-auto text-sm opacity-90">
-                  {targetUserId ? 'Private conversation' : 'Chat with support'}
-                </span>
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold">
+                    {targetUserId ? `Chat with ${targetUserName}` : 'Live Chat'}
+                  </h2>
+                  <p className="text-blue-100 text-sm">
+                    {targetUserId ? 'Private conversation' : 'Chat with support'}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-blue-100">Active</span>
+                </div>
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
                 {loading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-gray-600 mt-2">Loading messages...</p>
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+                      <p className="text-gray-600 text-lg">Loading messages...</p>
+                    </div>
                   </div>
                 ) : messages.length === 0 ? (
-                  <div className="text-center py-8">
-                    <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Messages Yet</h3>
-                    <p className="text-gray-600">Be the first to start the conversation!</p>
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <MessageCircle className="w-10 h-10 text-blue-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">No Messages Yet</h3>
+                      <p className="text-gray-600">Be the first to start the conversation!</p>
+                    </div>
                   </div>
                 ) : (
                   messages.map((message) => {
@@ -142,20 +165,22 @@ export default function ChatPage() {
                     return (
                       <div
                         key={message.id}
-                        className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} animate-fadeIn`}
                       >
                         <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
                             isCurrentUser
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-900'
+                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-md'
+                              : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
                           }`}
                         >
-                          <p className="text-sm">{message.text}</p>
-                          <div className={`text-xs mt-1 ${
+                          <p className="text-sm font-medium leading-relaxed">{message.text}</p>
+                          <div className={`text-xs mt-2 flex items-center space-x-2 ${
                             isCurrentUser ? 'text-blue-100' : 'text-gray-500'
                           }`}>
-                            {message.senderName} • {formatTime(message.timestamp)}
+                            <span className="font-medium">{message.senderName}</span>
+                            <span>•</span>
+                            <span>{formatTime(message.timestamp)}</span>
                           </div>
                         </div>
                       </div>
@@ -165,16 +190,22 @@ export default function ChatPage() {
               </div>
 
               {/* Message Input */}
-              <div className="p-4 border-t">
-                <form onSubmit={sendMessage} className="flex gap-2">
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Type your message..."
-                    className="flex-1"
-                  />
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                    <Send className="w-4 h-4" />
+              <div className="p-6 bg-white border-t border-gray-100">
+                <form onSubmit={sendMessage} className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type your message..."
+                      className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-all duration-300 bg-gray-50 focus:bg-white"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                    disabled={!newMessage.trim()}
+                  >
+                    <Send className="w-5 h-5" />
                   </Button>
                 </form>
               </div>
@@ -183,50 +214,67 @@ export default function ChatPage() {
           
           {/* Message List Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <MessageCircle className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-lg font-semibold">Recent Messages</h2>
-                  <span className="ml-auto text-sm text-gray-500">
-                    {messages.length} message{messages.length !== 1 ? 's' : ''}
-                  </span>
+            <Card className="h-[700px] p-6 bg-white shadow-2xl border-0 rounded-3xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
                 </div>
-
-                <div className="space-y-3">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`p-4 rounded-lg border ${
-                        message.userEmail === "You"
-                          ? 'bg-blue-50 border-blue-200'
-                          : 'bg-gray-50 border-gray-200'
+                <div>
+                  <h3 className="font-bold text-lg text-gray-800">Recent Messages</h3>
+                  <p className="text-sm text-gray-500">
+                    {messages.length} message{messages.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                {messages.slice(-5).map((message) => {
+                  const isCurrentUser = user && message.senderId === user.id;
+                  return (
+                    <div 
+                      key={message.id} 
+                      className={`p-4 rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                        isCurrentUser
+                          ? 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200'
+                          : 'bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200'
                       }`}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          isCurrentUser
+                            ? 'bg-gradient-to-br from-blue-500 to-purple-600'
+                            : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                        }`}>
                           <User className="w-4 h-4 text-white" />
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">
-                              {message.userEmail}
+                          <p className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                            {message.senderName}
+                          </p>
+                          {isCurrentUser && (
+                            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              You
                             </span>
-                            {message.userEmail === "You" && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                You
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-gray-800 mb-2">{message.text}</p>
-                          <div className="text-xs text-gray-500">
-                            {formatTime(message.timestamp)}
-                          </div>
+                          )}
                         </div>
                       </div>
+                      <p className="text-sm text-gray-600 truncate mb-2 leading-relaxed">
+                        {message.text}
+                      </p>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {formatTime(message.timestamp)}
+                      </p>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+                {messages.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MessageCircle className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 text-sm">No recent messages</p>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
