@@ -5,31 +5,24 @@ import { Send, MessageCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { db, auth, signInAnonymously, onAuthStateChanged } from '@/lib/firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, where, or } from 'firebase/firestore';
+import { useUser } from '@clerk/nextjs';
 
 export default function ChatPage() {
-  const [user, setUser] = useState(null);
+  const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
 
   // Authentication setup
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setLoading(false);
-      } else {
-        // Sign in anonymously if no user
-        signInAnonymously(auth).catch(console.error);
-      }
-    });
+    if (isLoaded) {
+      setLoading(false);
+    }
+  }, [isLoaded]);
 
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time messages listener
+  // Real-time messages listener - show all messages for now (general chat)
   useEffect(() => {
     if (!user) return;
 
@@ -55,8 +48,10 @@ export default function ChatPage() {
     try {
       await addDoc(collection(db, 'messages'), {
         text: newMessage,
-        userEmail: user.email || user.displayName || 'Anonymous',
-        userId: user.uid,
+        senderId: user.id,
+        senderName: user.fullName || user.emailAddresses[0]?.emailAddress || 'User',
+        recipientId: null, // General chat - no specific recipient
+        recipientName: 'Everyone',
         timestamp: serverTimestamp()
       });
       setNewMessage('');
@@ -105,7 +100,7 @@ export default function ChatPage() {
                   </div>
                 ) : (
                   messages.map((message) => {
-                    const isCurrentUser = user && message.userId === user.uid;
+                    const isCurrentUser = user && message.senderId === user.id;
                     return (
                       <div
                         key={message.id}
@@ -122,7 +117,7 @@ export default function ChatPage() {
                           <div className={`text-xs mt-1 ${
                             isCurrentUser ? 'text-blue-100' : 'text-gray-500'
                           }`}>
-                            {message.userEmail} • {formatTime(message.timestamp)}
+                            {message.senderName} • {formatTime(message.timestamp)}
                           </div>
                         </div>
                       </div>

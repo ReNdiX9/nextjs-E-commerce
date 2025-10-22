@@ -157,7 +157,9 @@ export default function ItemPage() {
       {/* Chat Widget */}
       <ChatWidget 
         isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
+        onClose={() => setIsChatOpen(false)}
+        recipientId={product?.sellerId}
+        recipientName={product?.sellerName}
       />
     </div>
   );

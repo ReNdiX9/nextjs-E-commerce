@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { db, auth, signInAnonymously, onAuthStateChanged } from '@/lib/firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, where, or } from 'firebase/firestore';
+import { useUser } from '@clerk/nextjs';
 
-export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
+export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientId, recipientName }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
   
   // Use external control if provided, otherwise use internal state
@@ -21,24 +22,22 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
 
   // Authentication setup
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (isLoaded) {
       if (user) {
-        setUser(user);
         setLoading(false);
       } else {
-        // Sign in anonymously if no user
-        signInAnonymously(auth).catch(console.error);
+        setLoading(false);
       }
-    });
+    }
+  }, [isLoaded, user]);
 
-    return () => unsubscribe();
-  }, []);
-
-  // Real-time messages listener
+  // Real-time messages listener for private conversations
   useEffect(() => {
-    if (!user) return;
+    if (!user || !recipientId) return;
 
     const messagesRef = collection(db, 'messages');
+    
+    // Get all messages and filter client-side to avoid index requirements
     const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -47,21 +46,30 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
         ...doc.data(),
         timestamp: doc.data().timestamp?.toDate() || new Date()
       }));
-      setMessages(messagesData);
+      
+      // Filter messages to only show conversation between current user and recipient
+      const conversationMessages = messagesData.filter(msg => 
+        (msg.senderId === user.id && msg.recipientId === recipientId) ||
+        (msg.senderId === recipientId && msg.recipientId === user.id)
+      );
+      
+      setMessages(conversationMessages);
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, recipientId]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user) return;
+    if (!newMessage.trim() || !user || !recipientId) return;
 
     try {
       await addDoc(collection(db, 'messages'), {
         text: newMessage,
-        userEmail: user.email || user.displayName || 'Anonymous',
-        userId: user.uid,
+        senderId: user.id,
+        senderName: user.fullName || user.emailAddresses[0]?.emailAddress || 'User',
+        recipientId: recipientId,
+        recipientName: recipientName || 'Recipient',
         timestamp: serverTimestamp()
       });
       setNewMessage('');
@@ -103,13 +111,25 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {loading ? (
+            {!user ? (
+              <div className="text-center text-gray-500">
+                <p>Please sign in to use chat</p>
+                <Button 
+                  onClick={() => window.location.href = '/signin'}
+                  className="mt-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  Sign In
+                </Button>
+              </div>
+            ) : loading ? (
               <div className="text-center text-gray-500">Loading messages...</div>
             ) : messages.length === 0 ? (
-              <div className="text-center text-gray-500">No messages yet. Start the conversation!</div>
+              <div className="text-center text-gray-500">
+                {recipientName ? `Start a conversation with ${recipientName}` : 'No messages yet. Start the conversation!'}
+              </div>
             ) : (
               messages.map((message) => {
-                const isCurrentUser = user && message.userId === user.uid;
+                const isCurrentUser = user && message.senderId === user.id;
                 return (
                   <div
                     key={message.id}
@@ -121,7 +141,7 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose }) {
                   >
                     <p className="text-sm">{message.text}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {message.userEmail} • {message.timestamp.toLocaleTimeString()}
+                      {message.senderName} • {message.timestamp.toLocaleTimeString()}
                     </p>
                   </div>
                 );
