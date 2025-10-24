@@ -1,7 +1,7 @@
 //homepage.js
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductsPage from "@/app/(app)/products/page";

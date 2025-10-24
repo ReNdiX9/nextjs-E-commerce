@@ -1,10 +1,13 @@
 // app/(app)/favorites/page.js
 "use client";
 
+//TODO optimize component load speed (use server component with client once and combine ) for favorites, and products(product)
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import Item from "@/components/Item";
+import Loading from "@/app/loading";
 
 export default function MyFavourites() {
   const { userId } = useAuth();
@@ -19,7 +22,7 @@ export default function MyFavourites() {
       }
 
       try {
-        const response = await fetch("/api/myfavorites", { cache: "no-store", next: { revalidate: 1800 } });
+        const response = await fetch("/api/myfavorites", { cache: "force-cache", next: { revalidate: 60 } });
 
         if (!response.ok) {
           throw new Error("Failed to fetch favorites");
@@ -69,13 +72,7 @@ export default function MyFavourites() {
     );
   }
 
-  if (!ready) {
-    return (
-      <div className="bg-background min-h-screen flex items-center justify-center">
-        <div className="text-text-primary text-lg">Loading favorites…</div>
-      </div>
-    );
-  }
+  if (!ready) <Loading />;
 
   return (
     <div className="bg-background min-h-screen">
