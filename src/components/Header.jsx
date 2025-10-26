@@ -21,6 +21,7 @@ export default function Header() {
     { name: "Create New  Listing", link: "/createItem" },
     { name: "My Listings", link: "/mylistings" },
     { name: "Favorites", link: "/myfavorites" },
+    { name: "Messages", link: "/messages" },
     { name: "Settings", link: "/settings" },
   ];
 
@@ -62,7 +63,10 @@ export default function Header() {
 
           <SignedOut>
             <li>
-              <Link href="/signin" className="text-text-primary hover:underline font-bold">
+              <Link
+                href="/signin"
+                className="text-text-primary hover:underline font-bold"
+              >
                 Sign in
               </Link>
             </li>
@@ -77,7 +81,12 @@ export default function Header() {
         <div className="md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-text-primary" suppressHydrationWarning>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-text-primary"
+                suppressHydrationWarning
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
@@ -125,6 +134,10 @@ function UserEmailDebug() {
 
   if (!user) return <span className="text-text-secondary">Not signed in</span>;
 
-  const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || user.email || "";
+  const email =
+    user.primaryEmailAddress?.emailAddress ||
+    user.emailAddresses?.[0]?.emailAddress ||
+    user.email ||
+    "";
   return <span className="text-text-secondary">{email}</span>;
 }
