@@ -7,9 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
 import ImageCarousel from "@/components/ImageCarousel";
-import ChatWidget from "@/components/ChatWidget";
 import { Button } from "@/components/ui/button";
-import { MessageCircle } from "lucide-react";
 
 export default function ItemPage() {
   const params = useParams();
@@ -20,7 +18,6 @@ export default function ItemPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -140,27 +137,14 @@ export default function ItemPage() {
                   image: product.images?.[0],
                   description: product.description,
                 }}
+                sellerId={product?.sellerId || product?.userId}
+                sellerName={product?.sellerName}
               />
-              <Button
-                onClick={() => setIsChatOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Send Message
-              </Button>
               <FavoriteButton product={product} />
             </div>
           </div>
         </div>
       </main>
-      
-      {/* Chat Widget */}
-      <ChatWidget 
-        isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)}
-        recipientId={product?.sellerId}
-        recipientName={product?.sellerName}
-      />
     </div>
   );
 }

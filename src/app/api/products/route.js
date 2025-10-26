@@ -65,7 +65,8 @@ export async function POST(request) {
 
     const newProduct = {
       ...body,
-      userId,
+      sellerId: userId,
+      userId, // Keep both for backward compatibility
       createdAt: new Date(),
     };
 
