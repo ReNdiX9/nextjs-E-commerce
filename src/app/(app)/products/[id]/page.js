@@ -8,6 +8,7 @@ import OfferActionsClient from "@/components/OfferActionsClient";
 import ImageCarousel from "@/components/ImageCarousel";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
+import { Button } from "@/components/ui/button";
 
 export default function ItemPage() {
   const params = useParams();
@@ -148,6 +149,7 @@ export default function ItemPage() {
               </div>
             )}
 
+
             {/* Actions */}
             <div className="flex gap-4 items-center pt-4">
               <OfferActionsClient
@@ -158,6 +160,8 @@ export default function ItemPage() {
                   image: product.images?.[0],
                   description: product.description,
                 }}
+                sellerId={product?.sellerId || product?.userId}
+                sellerName={product?.sellerName}
               />
               <FavoriteButton product={product} />
               {/* //TODO block user listings*/}

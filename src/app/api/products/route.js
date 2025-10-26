@@ -9,6 +9,8 @@ export const runtime = "nodejs";
 //GET all products - method to display all products on the home page
 export async function GET(req) {
   try {
+    console.log("Attempting to fetch products...");
+    
     //get searchParams from url
     const searchParams = req.nextUrl.searchParams;
     //Pagination params
@@ -23,8 +25,13 @@ export async function GET(req) {
     const max = searchParams.get("max");
 
     const productsCollection = await getCollection("products");
+
     if (!productsCollection) {
-      return NextResponse.json({ error: "DB not available" }, { status: 500 });
+      console.error("Failed to get products collection");
+      return NextResponse.json(
+        { error: "Database connection failed" },
+        { status: 500 }
+      );
     }
 
     // MongoDB query
@@ -67,31 +74,62 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 
 //POST  - method to list new product
 export async function POST(request) {
   try {
+    console.log("Attempting to create new product...");
+
     const { userId } = await auth();
     if (!userId) {
+      console.log("Unauthorized access attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // const client = await clerkClient();
-    //const user = await client.users.getUser(userId);
 
     const body = await request.json();
+    console.log("Request body received:", body);
+
     const productsCollection = await getCollection("products");
+    if (!productsCollection) {
+      console.error("Failed to get products collection");
+      return NextResponse.json(
+        { error: "Database connection failed" },
+        { status: 500 }
+      );
+    }
 
     const newProduct = {
       ...body,
+      sellerId: userId,
+      userId, // Keep both for backward compatibility
       createdAt: new Date(),
     };
+
+    console.log("Inserting product:", newProduct);
     const result = await productsCollection.insertOne(newProduct);
-    return NextResponse.json({ message: "Product created", id: result.insertedId });
+    console.log("Product inserted with ID:", result.insertedId);
+
+    return NextResponse.json({
+      message: "Product created successfully",
+      id: result.insertedId,
+    });
   } catch (error) {
-    console.log("Error creating product:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Error creating product:", error);
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
