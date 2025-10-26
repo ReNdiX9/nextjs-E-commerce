@@ -76,7 +76,7 @@ export default function Item({ _id, title, price, category, condition, images, o
               {onDelete && (
                 <button
                   onClick={() => onDelete(_id)}
-                  className="rounded-md border border-card-border px-3 py-1 text-text-secondary hover:opacity-90 active:translate-y-px transition-all cursor-pointer"
+                  className="rounded-md border border-card-border bg-card-bg px-3 py-1 text-text-secondary hover:bg-red-50 hover:border-red-400 hover:text-red-600 dark:hover:bg-card-bg dark:hover:border-red-700 dark:hover:text-red-400 active:translate-y-px transition-all cursor-pointer"
                   title="Remove from favorites"
                   aria-label="Remove from favorites"
                 >

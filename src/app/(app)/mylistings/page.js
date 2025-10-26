@@ -120,7 +120,7 @@ export default function MyListingsPage() {
                 >
                   {/* Image */}
                   {item.images && item.images.length > 0 && (
-                    <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
+                    <div className="relative w-36 h-36 flex-shrink-0 rounded-lg overflow-hidden">
                       <Image src={item.images[0]} alt={item.title} fill className="object-cover" />
                     </div>
                   )}

@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 export async function GET() {
   try {
     const { userId } = await auth();
-
+    console.log(userId); //user_34O6P3hTN0FFhGHbfgd8lQejp4R;
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
