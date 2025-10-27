@@ -7,42 +7,42 @@ import { ObjectId } from "mongodb";
 export const runtime = "nodejs";
 
 // GET - Fetch all favorites for the logged-in user
-export async function GET() {
-  try {
-    const { userId } = await auth();
-    console.log(userId); //user_34O6P3hTN0FFhGHbfgd8lQejp4R;
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+// export async function GET() {
+//   try {
+//     const { userId } = await auth();
+//     console.log(userId); //user_34O6P3hTN0FFhGHbfgd8lQejp4R;
+//     if (!userId) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
 
-    const favoritesCollection = await getCollection("favorites");
-    const productsCollection = await getCollection("products");
+//     const favoritesCollection = await getCollection("favorites");
+//     const productsCollection = await getCollection("products");
 
-    // Get all favorite product IDs for this user
-    const favorites = await favoritesCollection.find({ userId }).sort({ createdAt: -1 }).toArray();
+//     // Get all favorite product IDs for this user
+//     const favorites = await favoritesCollection.find({ userId }).sort({ createdAt: -1 }).toArray();
 
-    // Get the full product details for each favorite item
-    const productIds = favorites.map((fav) => fav.productId);
-    const products = await productsCollection.find({ _id: { $in: productIds } }).toArray();
+//     // Get the full product details for each favorite item
+//     const productIds = favorites.map((fav) => fav.productId);
+//     const products = await productsCollection.find({ _id: { $in: productIds } }).toArray();
 
-    // Map products with favorite info
-    const favoritesWithProducts = favorites
-      .map((fav) => {
-        const product = products.find((p) => p._id.toString() === fav.productId.toString());
-        return {
-          ...product,
-          favoriteId: fav._id,
-          favoritedAt: fav.createdAt,
-        };
-      })
-      .filter((item) => item._id);
+//     // Map products with favorite info
+//     const favoritesWithProducts = favorites
+//       .map((fav) => {
+//         const product = products.find((p) => p._id.toString() === fav.productId.toString());
+//         return {
+//           ...product,
+//           favoriteId: fav._id,
+//           favoritedAt: fav.createdAt,
+//         };
+//       })
+//       .filter((item) => item._id);
 
-    return NextResponse.json(favoritesWithProducts);
-  } catch (error) {
-    console.error("Error fetching favorites:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
+//     return NextResponse.json(favoritesWithProducts);
+//   } catch (error) {
+//     console.error("Error fetching favorites:", error);
+//     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+//   }
+// }
 
 // POST - Add a product to favorites
 export async function POST(request) {

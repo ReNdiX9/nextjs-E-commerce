@@ -1,19 +1,39 @@
-// app/(app)/favorites/Favoritesclient.jsx
+// app/(app)/favorites/FavoritesClient.js
 "use client";
 
-import Item from "@/components/Item";
-import { Link } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
+import Item from "@/components/Item";
 
 export default function FavoritesClient({ initialItems }) {
   const [items, setItems] = useState(initialItems);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const remove = async (id) => {
+    if (isDeleting) return;
+
+    // Store original items
+    const originalItems = [...items];
+
     setItems((prev) => prev.filter((item) => item._id !== id));
+    setIsDeleting(true);
+
     try {
-      await fetch(`/api/myfavorites/${id}`, { method: "DELETE" });
-    } catch (e) {
-      console.error("Error removing favorite:", e);
+      const response = await fetch(`/api/myfavorites/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove favorite");
+      }
+
+      console.log("Removed from favorites");
+    } catch (error) {
+      console.error("Error removing favorite:", error);
+      setItems(originalItems);
+      console.log("Failed to remove item. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -44,7 +64,7 @@ export default function FavoritesClient({ initialItems }) {
                   _id={item._id}
                   title={item.title}
                   category={item.category}
-                  images={item.images || (item.image ? [item.image] : [])}
+                  images={item.images}
                   price={item.price}
                   onDelete={remove}
                   showFavorite={false}
