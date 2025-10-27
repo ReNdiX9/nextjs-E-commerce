@@ -5,13 +5,14 @@ import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, where, or } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { useUser } from '@clerk/nextjs';
 
 export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientId, recipientName }) {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
+  const [firebaseReady, setFirebaseReady] = useState(false);
   
   // Use external control if provided, otherwise use internal state
   const isWidgetOpen = externalIsOpen !== undefined ? externalIsOpen : isOpen;
@@ -22,18 +23,29 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
 
   // Authentication setup
   useEffect(() => {
-    if (isLoaded) {
-      if (user) {
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+    if (isLoaded && user) {
+      // Optional: Ensure Firebase is authenticated
+      // Note: Anonymous auth is optional if Firestore rules allow unauthenticated access
+      import('@/lib/firebase').then(async ({ auth, signInAnonymously }) => {
+        try {
+          if (auth.currentUser === null) {
+            // Try to sign in anonymously, but don't fail if it's not enabled
+            await signInAnonymously(auth);
+          }
+          setFirebaseReady(true);
+        } catch (err) {
+          console.warn('Firebase auth failed (this is OK if Anonymous auth is disabled):', err.message);
+          // Still mark as ready - permissive Firestore rules allow unauthenticated access
+          setFirebaseReady(true);
+        }
+      });
     }
+    setLoading(false);
   }, [isLoaded, user]);
 
   // Real-time messages listener for private conversations
   useEffect(() => {
-    if (!user || !recipientId) return;
+    if (!user || !recipientId || !firebaseReady) return;
 
     const messagesRef = collection(db, 'messages');
     
@@ -57,7 +69,7 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
     });
 
     return () => unsubscribe();
-  }, [user, recipientId]);
+  }, [user, recipientId, firebaseReady]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -98,7 +110,7 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
         <div className="fixed bottom-4 right-4 z-50 w-80 h-96 bg-white rounded-lg shadow-xl border flex flex-col">
           {/* Header */}
           <div className="bg-blue-600 text-white p-3 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-semibold">Live Chat</h3>
+            <h3 className="font-semibold">Chat with {recipientName}</h3>
             <Button
               onClick={handleClose}
               variant="ghost"
@@ -168,3 +180,4 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
     </>
   );
 }
+
