@@ -45,20 +45,29 @@ export default function ChatPage() {
   const [targetUserId, setTargetUserId] = useState(null); // Recipient user ID (for private chat)
   const [targetUserName, setTargetUserName] = useState(""); // Recipient user name (display)
   const [isBlocked, setIsBlocked] = useState(false); // Whether the conversation is blocked
+  const [firebaseReady, setFirebaseReady] = useState(false); // Track Firebase auth completion
 
   // When Clerk finishes loading, we can render the chat UI
   useEffect(() => {
     if (isLoaded && user) {
-      // Ensure Firebase is authenticated
-      import('@/lib/firebase').then(({ auth, signInAnonymously }) => {
-        if (auth.currentUser === null) {
-          signInAnonymously(auth).catch(err => {
-            console.error('Firebase auth failed:', err);
-          });
+      // Optional: Ensure Firebase is authenticated
+      // Note: Anonymous auth is optional if Firestore rules allow unauthenticated access
+      import('@/lib/firebase').then(async ({ auth, signInAnonymously }) => {
+        try {
+          if (auth.currentUser === null) {
+            // Try to sign in anonymously, but don't fail if it's not enabled
+            await signInAnonymously(auth);
+          }
+          setFirebaseReady(true); // Mark Firebase as ready
+        } catch (err) {
+          console.warn('Firebase auth failed (this is OK if Anonymous auth is disabled):', err.message);
+          // Still mark as ready - permissive Firestore rules allow unauthenticated access
+          setFirebaseReady(true);
         }
       });
+    } else {
+      setLoading(false); // Stop showing loading spinner
     }
-    setLoading(false); // Stop showing loading spinner
   }, [isLoaded, user]); // Re-run if load status or user changes
 
   // Extract the recipient user from the URL (?user=<id>)
@@ -72,7 +81,7 @@ export default function ChatPage() {
 
   // Real-time listener: fetch messages and evaluate block status
   useEffect(() => {
-    if (!user) return; // If no authenticated user, don't set up listener
+    if (!user || !firebaseReady) return; // Wait for both Clerk and Firebase auth
 
     const messagesRef = collection(db, "messages"); // Reference the messages collection
     const q = query(messagesRef, orderBy("timestamp", "asc")); // Sort messages by timestamp ascending
@@ -85,6 +94,9 @@ export default function ChatPage() {
         ...docSnap.data(), // Spread document fields
         timestamp: docSnap.data().timestamp?.toDate() || new Date(), // Convert Firestore timestamp
       }));
+
+      // Stop loading spinner once we receive data
+      setLoading(false);
 
       // If chatting privately with a specific user
       if (targetUserId) {
@@ -123,10 +135,14 @@ export default function ChatPage() {
         // General chat case (no specific recipient) — show all messages
         setMessages(messagesData);
       }
+    }, (error) => {
+      // Handle Firestore errors
+      console.error('Firestore snapshot error:', error);
+      setLoading(false);
     });
 
     return () => unsubscribe(); // Clean up the listener on unmount or dependency change
-  }, [user, targetUserId]); // Re-run if user or target changes
+  }, [user, targetUserId, firebaseReady]); // Re-run if user, target, or Firebase auth changes
 
   // Send a message handler
   const sendMessage = async (e) => {
@@ -252,7 +268,7 @@ export default function ChatPage() {
                       </div>
                       <h3 className="text-xl font-bold text-gray-800 mb-2">Conversation Blocked</h3>
                       <p className="text-gray-600">
-                        You won’t see messages from {targetUserName} until you unblock them. {/* Explanation */}
+                        You won't see messages from {targetUserName} until you unblock them. {/* Explanation */}
                       </p>
                     </div>
                   </div>
@@ -420,3 +436,4 @@ export default function ChatPage() {
     </div>
   );
 }
+

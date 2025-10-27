@@ -48,12 +48,8 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Auto-sign in anonymously for Firestore access (needed for chat)
-if (typeof window !== 'undefined') {
-  signInAnonymously(auth).catch((error) => {
-    console.error('Firebase anonymous sign-in failed:', error);
-  });
-}
+// Note: Anonymous sign-in is now handled on-demand by components
+// to ensure proper error handling and user authentication flow
 
 export { 
   db, 
@@ -64,3 +60,4 @@ export {
   signInWithPopup, 
   onAuthStateChanged 
 };
+
