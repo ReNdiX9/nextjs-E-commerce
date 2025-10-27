@@ -22,13 +22,17 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
 
   // Authentication setup
   useEffect(() => {
-    if (isLoaded) {
-      if (user) {
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+    if (isLoaded && user) {
+      // Ensure Firebase is authenticated
+      import('@/lib/firebase').then(({ auth, signInAnonymously }) => {
+        if (auth.currentUser === null) {
+          signInAnonymously(auth).catch(err => {
+            console.error('Firebase auth failed:', err);
+          });
+        }
+      });
     }
+    setLoading(false);
   }, [isLoaded, user]);
 
   // Real-time messages listener for private conversations

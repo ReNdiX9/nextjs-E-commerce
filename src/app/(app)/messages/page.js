@@ -26,6 +26,15 @@ export default function MessagesPage() {
       return;
     }
 
+    // Ensure Firebase is authenticated
+    import('@/lib/firebase').then(({ auth, signInAnonymously }) => {
+      if (auth.currentUser === null) {
+        signInAnonymously(auth).catch(err => {
+          console.error('Firebase auth failed:', err);
+        });
+      }
+    });
+
     // Get all messages where current user is either sender or recipient
     const messagesRef = collection(db, 'messages');
     const q = query(messagesRef, orderBy('timestamp', 'desc'));

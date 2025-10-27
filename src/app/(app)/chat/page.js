@@ -21,10 +21,18 @@ export default function ChatPage() {
 
   // Authentication setup
   useEffect(() => {
-    if (isLoaded) {
-      setLoading(false);
+    if (isLoaded && user) {
+      // Ensure Firebase is authenticated
+      import('@/lib/firebase').then(({ auth, signInAnonymously }) => {
+        if (auth.currentUser === null) {
+          signInAnonymously(auth).catch(err => {
+            console.error('Firebase auth failed:', err);
+          });
+        }
+      });
     }
-  }, [isLoaded]);
+    setLoading(false);
+  }, [isLoaded, user]);
 
   // Get target user from URL parameters
   useEffect(() => {
