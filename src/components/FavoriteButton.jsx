@@ -25,11 +25,10 @@ export default function FavoriteButton({ product }) {
       }
 
       try {
-        const response = await fetch("/api/myfavorites");
+        const response = await fetch(`/api/myfavorites/check/${product._id}`);
         if (response.ok) {
-          const favorites = await response.json();
-          const isFav = favorites.some((fav) => fav._id === product._id);
-          setIsFavorite(isFav);
+          const data = await response.json();
+          setIsFavorite(data.isFavorite);
         }
       } catch (error) {
         console.error("Error checking favorite status:", error);
@@ -48,14 +47,15 @@ export default function FavoriteButton({ product }) {
     if (!product || !product._id) return;
 
     if (!userId) {
-      toast.error("Please sign in to save favorites");
       return;
     }
 
-    setReady(false);
+    // Optimistic update
+    const previousState = isFavorite;
+    setIsFavorite(!isFavorite);
 
     try {
-      if (isFavorite) {
+      if (previousState) {
         // Remove from favorites
         const response = await fetch(`/api/myfavorites/${product._id}`, {
           method: "DELETE",
@@ -64,8 +64,6 @@ export default function FavoriteButton({ product }) {
         if (!response.ok) {
           throw new Error("Failed to remove favorite");
         }
-
-        setIsFavorite(false);
       } else {
         // Add to favorites
         const response = await fetch("/api/myfavorites", {
@@ -80,13 +78,12 @@ export default function FavoriteButton({ product }) {
           const error = await response.json();
           throw new Error(error.error || "Failed to add favorite");
         }
-
-        setIsFavorite(true);
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
-    } finally {
-      setReady(true);
+      // Rollback on error
+      setIsFavorite(previousState);
+      alert("Failed to update favorite. Please try again.");
     }
   };
 

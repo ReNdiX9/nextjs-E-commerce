@@ -44,21 +44,19 @@ export default function ImageCarousel({ images, title }) {
       </div>
     );
   }
-
   // Single image - no carousel needed
   if (images.length === 1) {
     return (
-      <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-background">
-        <Image src={images[0]} alt={title} fill className="object-contain p-4" priority />
+      <div className="relative w-full h-full bg-background  ">
+        <Image src={images[0]} alt={title} fill className="object-contain p-4 rounded" priority />
       </div>
     );
   }
-
   // Multiple images - full carousel
   return (
     <div className="relative">
       {/* Carousel Container */}
-      <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+      <div className="overflow-hidden " ref={emblaRef}>
         <div className="flex">
           {images.map((img, idx) => (
             <div key={idx} className="flex-[0_0_100%] min-w-0">
@@ -92,7 +90,7 @@ export default function ImageCarousel({ images, title }) {
         <FaArrowRight />
       </button>
       {/* Dot Indicators */}
-      <div className="flex justify-center gap-2 mt-2">
+      <div className="flex justify-center gap-1  mb-3">
         {images.map((_, idx) => (
           <button
             key={idx}

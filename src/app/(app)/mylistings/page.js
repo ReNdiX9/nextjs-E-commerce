@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
+import Loading from "@/app/loading";
 
 export default function MyListingsPage() {
   const { userId } = useAuth();
@@ -83,13 +84,7 @@ export default function MyListingsPage() {
   }
 
   // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-text-primary text-lg">Loading your listings...</div>
-      </div>
-    );
-  }
+  if (loading) <Loading />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,7 +120,7 @@ export default function MyListingsPage() {
                 >
                   {/* Image */}
                   {item.images && item.images.length > 0 && (
-                    <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
+                    <div className="relative w-36 h-36 flex-shrink-0 rounded-lg overflow-hidden">
                       <Image src={item.images[0]} alt={item.title} fill className="object-cover" />
                     </div>
                   )}

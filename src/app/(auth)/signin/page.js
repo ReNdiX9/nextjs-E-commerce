@@ -45,6 +45,7 @@ export default function SignIn() {
         identifier: values.email,
         password: values.password,
       });
+      d;
 
       if (res?.status === "complete" && res?.createdSessionId) {
         console.debug("Sign in successful, activating session...", res);

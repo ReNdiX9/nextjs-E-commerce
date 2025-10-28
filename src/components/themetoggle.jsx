@@ -1,47 +1,39 @@
-// made the darkmode component manually but in order to implement it in the each file and component used AI  as we want to implement the colors should perfectly align with the theme
-
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, systemTheme } = useTheme();
 
-  useEffect(() => {
-    // Check if dark mode is already set
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setIsDark(true);
-      document.documentElement.classList.add("dark");
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
+  if (!mounted) {
+    return (
+      <button
+        className="p-2 rounded-md bg-card-bg border border-card-border text-text-primary"
+        aria-label="Toggle theme"
+      >
+        <div className="w-6 h-6" />
+      </button>
+    );
+  }
 
-    if (newTheme) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  };
+  const curr = theme === "system" ? systemTheme : theme;
+  const isDark = curr === "dark";
 
   return (
     <button
-      onClick={toggleTheme}
-      className="p-2 rounded-md bg-card-bg border border-card-border text-text-primary hover:opacity-80 transition-all duration-500 ease-in-out"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="p-2 rounded-md bg-card-bg border border-card-border text-text-primary hover:opacity-70 transition-all duration-500 ease-in-out cursor-pointer"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label="Toggle theme"
     >
       <div className={`transform transition-transform duration-500 ease-in-out ${isDark ? "rotate-240" : "rotate-0"}`}>
         {isDark ? (
-          <Moon className="text-blue-500 transition-colors duration-500" />
+          <Moon className="text-blue-500 transition-all duration-500" />
         ) : (
           <Sun className="text-yellow-500 transition-colors duration-500" />
         )}

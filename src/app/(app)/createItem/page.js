@@ -1,11 +1,14 @@
 "use client";
 
+//TODO optimize load speed and for my listing too
+
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { Categories, Conditions } from "@/lib/utils";
 import { ToastContainer, toast } from "react-toastify";
+import Loading from "@/app/loading";
 
 export default function CreateListingPage() {
   const { userId } = useAuth();
@@ -203,13 +206,7 @@ export default function CreateListingPage() {
     );
   }
 
-  if (loadingUser) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-text-primary">Loading...</div>
-      </div>
-    );
-  }
+  if (loadingUser) <Loading />;
 
   return (
     <div className="min-h-screen bg-background">
