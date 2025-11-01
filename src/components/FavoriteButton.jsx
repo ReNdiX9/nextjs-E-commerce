@@ -93,7 +93,7 @@ export default function FavoriteButton({ product }) {
       type="button"
       onClick={toggleFavorite}
       disabled={!ready}
-      className="rounded-lg bg-black p-3 text-md h-10 w-10 text-white transition hover:opacity-90 active:translate-y-px cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      className="rounded-lg bg-black p-3 text-md h-10 w-10 text-white transition hover:opacity-90 active:translate-y-px cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mr-2"
     >
       {isFavorite ? <FaStar className="text-yellow-400" /> : <FaRegStar />}
     </button>
