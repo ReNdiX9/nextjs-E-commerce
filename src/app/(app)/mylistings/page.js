@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 
-import { getMyListings } from "./action";
+import { getMyListings } from "../../../actions/myListingsActions";
 import MyListingsClient from "@/components/MyListingsClient";
 import Link from "next/link";
 
