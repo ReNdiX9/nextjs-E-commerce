@@ -162,8 +162,9 @@ export default function ItemPage() {
                 sellerId={product?.sellerId || product?.userId}
                 sellerName={product?.sellerName}
               />
+              {/*Favorite button*/}
               <FavoriteButton product={product} />
-              {/* //TODO block user listing*/}
+              {/*Block button*/}
               <BlockListingButton productId={product._id} />
             </div>
           </div>

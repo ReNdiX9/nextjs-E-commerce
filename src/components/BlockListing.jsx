@@ -2,7 +2,7 @@
 
 import { MdBlock, MdCheckCircle } from "react-icons/md";
 import { useState } from "react";
-import { blockProduct, unblockProduct } from "@/actions/userAddBlockActions";
+import { toggleBlockProduct } from "@/actions/userAddBlockActions";
 import { useRouter } from "next/navigation";
 
 export default function BlockListingButton({ productId, initialBlocked = false }) {
@@ -13,21 +13,18 @@ export default function BlockListingButton({ productId, initialBlocked = false }
   const handleToggleBlock = async () => {
     setIsLoading(true);
     try {
-      const result = isBlocked ? await unblockProduct(productId) : await blockProduct(productId);
+      const result = await toggleBlockProduct(productId, isBlocked);
 
-      if (result.error) {
-        return;
-      } else {
+      if (result.success) {
         setIsBlocked(!isBlocked);
-        //redirect home
+
+        // Redirect home only when blocking (not unblocking)
         if (!isBlocked) {
-          setTimeout(() => {
-            router.replace("/");
-          }, 1000);
+          setTimeout(() => router.replace("/"), 1000);
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error("Toggle block error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +36,7 @@ export default function BlockListingButton({ productId, initialBlocked = false }
       disabled={isLoading}
       title={isBlocked ? "Remove from blocked" : "Block listing"}
       type="button"
-      className={`
+      className={`cursor-pointer
         group relative h-10 w-10 rounded-lg
         transition-all duration-300 ease-out
         ${
@@ -53,7 +50,6 @@ export default function BlockListingButton({ productId, initialBlocked = false }
         backdrop-blur-sm
       `}
     >
-      {/* Loading spinner or icon */}
       {isLoading ? (
         <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
       ) : (
@@ -72,4 +68,3 @@ export default function BlockListingButton({ productId, initialBlocked = false }
     </button>
   );
 }
-//TODO finish unblock functionality
