@@ -1,7 +1,5 @@
 "use client";
 
-//TODO optimize load speed and for my listing too
-
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";

@@ -1,7 +1,7 @@
 // app/(app)/favorites/page.js
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getFavorites } from "./actions";
+import { getFavorites } from "../../../actions/myFavoritesActions";
 import FavoritesClient from "../../../components/FavoritesClient";
 
 export default async function MyFavourites() {

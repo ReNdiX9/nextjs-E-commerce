@@ -2,15 +2,15 @@
 
 import { getCollection } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
+import { ObjectId } from "mongodb";
 
 export const runtime = "nodejs";
 
 //GET all products - method to display all products on the home page
 export async function GET(req) {
   try {
-    console.log("Attempting to fetch products...");
-    
+    const { userId } = await auth();
     //get searchParams from url
     const searchParams = req.nextUrl.searchParams;
     //Pagination params
@@ -28,14 +28,30 @@ export async function GET(req) {
 
     if (!productsCollection) {
       console.error("Failed to get products collection");
-      return NextResponse.json(
-        { error: "Database connection failed" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Database connection failed" }, { status: 500 });
+    }
+    // Get blocked product IDs
+    let blockedIds = [];
+    if (userId) {
+      const blockedProducts = await getCollection("blockedProducts");
+      const blocks = await blockedProducts.find({ userId: userId }).toArray();
+      // Convert to ObjectIds for MongoDB query
+      blockedIds = blocks.map((block) => {
+        try {
+          return typeof block.productId === "string" ? new ObjectId(block.productId) : block.productId;
+        } catch (e) {
+          return block.productId;
+        }
+      });
     }
 
     // MongoDB query
     const query = {};
+
+    // Exclude blocked products
+    if (blockedIds.length > 0) {
+      query._id = { $nin: blockedIds };
+    }
 
     // Search query by title
     if (q) {
@@ -101,16 +117,13 @@ export async function POST(request) {
     const productsCollection = await getCollection("products");
     if (!productsCollection) {
       console.error("Failed to get products collection");
-      return NextResponse.json(
-        { error: "Database connection failed" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Database connection failed" }, { status: 500 });
     }
 
     const newProduct = {
       ...body,
       sellerId: userId,
-      userId, // Keep both for backward compatibility
+      userId,
       createdAt: new Date(),
     };
 

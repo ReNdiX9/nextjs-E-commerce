@@ -20,7 +20,7 @@ export default function OfferActionsClient({ item, sellerId, sellerName }) {
         >
           Send Offer
         </button>
-        
+
         <button
           onClick={() => setChatOpen(true)}
           className="rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 active:translate-y-px hover:scale-103 flex items-center gap-2"
@@ -42,8 +42,8 @@ export default function OfferActionsClient({ item, sellerId, sellerName }) {
         secondaryLabel="Cancel"
       />
 
-      <ChatWidget 
-        isOpen={chatOpen} 
+      <ChatWidget
+        isOpen={chatOpen}
         onClose={() => setChatOpen(false)}
         recipientId={sellerId}
         recipientName={sellerName}
