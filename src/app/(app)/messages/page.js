@@ -27,8 +27,6 @@ export default function MessagesPage() {
       return;
     }
 
-    // Optional: Ensure Firebase is authenticated
-    // Note: Anonymous auth is optional if Firestore rules allow unauthenticated access
     import('@/lib/firebase').then(async ({ auth, signInAnonymously }) => {
       try {
         if (auth.currentUser === null) {
@@ -61,6 +59,7 @@ export default function MessagesPage() {
       // Group messages by conversation (sender-recipient pairs)
       const conversationMap = new Map();
 
+      
       messagesData.forEach(message => {
         if (message.senderId === user.id || message.recipientId === user.id) {
           // Create a conversation key

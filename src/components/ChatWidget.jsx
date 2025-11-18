@@ -16,7 +16,7 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
   
   // Use external control if provided, otherwise use internal state
   const isWidgetOpen = externalIsOpen !== undefined ? externalIsOpen : isOpen;
-  const handleClose = onClose || (() => setIsOpen(false));
+    const handleClose = onClose || (() => setIsOpen(false));
   
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -24,8 +24,6 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
   // Authentication setup
   useEffect(() => {
     if (isLoaded && user) {
-      // Optional: Ensure Firebase is authenticated
-      // Note: Anonymous auth is optional if Firestore rules allow unauthenticated access
       import('@/lib/firebase').then(async ({ auth, signInAnonymously }) => {
         try {
           if (auth.currentUser === null) {
@@ -35,7 +33,6 @@ export default function ChatWidget({ isOpen: externalIsOpen, onClose, recipientI
           setFirebaseReady(true);
         } catch (err) {
           console.warn('Firebase auth failed (this is OK if Anonymous auth is disabled):', err.message);
-          // Still mark as ready - permissive Firestore rules allow unauthenticated access
           setFirebaseReady(true);
         }
       });
