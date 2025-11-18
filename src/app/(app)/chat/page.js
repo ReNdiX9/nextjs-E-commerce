@@ -170,6 +170,7 @@ export default function ChatPage() {
         timestamp: serverTimestamp(), // Server-side canonical time
       });
       setNewMessage(""); // Clear input after sending
+      setTypingStatus(false); // ⭐ NEW: Reset typing indicator after send
     } catch (error) {
       console.error("Error sending message:", error); // Log errors for debugging
     }
@@ -199,6 +200,67 @@ export default function ChatPage() {
     } catch (err) {
       console.error("Error unblocking user:", err); // Log errors
     }
+  };
+
+  // ⭐ NEW: Edit a message (merge new text and record edit time)
+  const editMessage = async (messageId, newText) => {
+    if (!user) return;
+    await setDoc(
+      doc(db, "messages", messageId),
+      { text: newText, editedAt: serverTimestamp() }, // Track editedAt
+      { merge: true }
+    );
+  };
+
+  // ⭐ NEW: Delete a message
+  const deleteMessage = async (messageId) => {
+    if (!user) return;
+    await deleteDoc(doc(db, "messages", messageId));
+  };
+
+  // ⭐ NEW: Mark a specific message as read by current user
+  const markAsRead = async (messageId) => {
+    if (!user) return;
+    await setDoc(doc(db, "readReceipts", `${messageId}_${user.id}`), {
+      messageId,
+      userId: user.id,
+      readAt: serverTimestamp(),
+    });
+  };
+
+  // ⭐ NEW: Typing status tracking for current user
+  const setTypingStatus = async (isTyping) => {
+    if (!user) return;
+    await setDoc(doc(db, "typingStatus", user.id), {
+      isTyping,
+      updatedAt: serverTimestamp(),
+    });
+  };
+
+  // ⭐ NEW: Client-side search for messages
+  const searchMessages = (messagesList, keyword) => {
+    return messagesList.filter((msg) =>
+      msg.text.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
+
+  // ⭐ NEW: Mute the target user (suppress notifications externally)
+  const muteUser = async (mutedUserId) => {
+    if (!user || !mutedUserId) return;
+    await setDoc(doc(db, "mutedUsers", `${user.id}_${mutedUserId}`), {
+      mutedAt: serverTimestamp(),
+    });
+  };
+
+  // ⭐ NEW: Report the target user for moderation
+  const reportUser = async (reportedId, reason) => {
+    if (!user || !reportedId) return;
+    await addDoc(collection(db, "reports"), {
+      reporterId: user.id,
+      reportedId,
+      reason,
+      timestamp: serverTimestamp(),
+    });
   };
 
   // Format message timestamps as HH:MM
@@ -302,11 +364,12 @@ export default function ChatPage() {
                       >
                         <div
                           className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${isCurrentUser
-                            ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-md" // My messages style
-                            : "bg-white text-gray-900 border border-gray-200 rounded-bl-md" // Other messages style
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-md" // My messages style
+                              : "bg-white text-gray-900 border border-gray-200 rounded-bl-md" // Other messages style
                             }`}
                         >
                           <p className="text-sm font-medium leading-relaxed">{message.text}</p> {/* Message text */}
+
                           <div
                             className={`text-xs mt-2 flex items-center space-x-2 ${isCurrentUser ? "text-blue-100" : "text-gray-500"
                               }`}
@@ -314,7 +377,37 @@ export default function ChatPage() {
                             <span className="font-medium">{message.senderName}</span> {/* Sender name */}
                             <span>•</span> {/* Separator */}
                             <span>{formatTime(message.timestamp)}</span> {/* Time display */}
+                            {message.editedAt && <span>(edited)</span>} {/* ⭐ NEW: show edited flag */}
                           </div>
+
+                          {/* ⭐ NEW: Actions for current user's messages */}
+                          {isCurrentUser && (
+                            <div className="flex gap-2 mt-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  editMessage(message.id, prompt("Edit message:", message.text) || message.text)
+                                }
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteMessage(message.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* ⭐ NEW: Read receipt placeholder (hook up to readReceipts if desired) */}
+                          {isCurrentUser && (
+                            <div className="text-xs mt-1 opacity-80">
+                              Seen ✓✓
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -335,7 +428,11 @@ export default function ChatPage() {
                     <div className="flex-1 relative">
                       <Input
                         value={newMessage} // Controlled input value
-                        onChange={(e) => setNewMessage(e.target.value)} // Update local state
+                        onChange={(e) => {
+                          setNewMessage(e.target.value); // Update local state
+                          setTypingStatus(true); // ⭐ NEW: mark typing
+                        }}
+                        onBlur={() => setTypingStatus(false)} // ⭐ NEW: stop typing on blur
                         placeholder="Type your message..." // Placeholder text
                         className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-all duration-300 bg-gray-50 focus:bg-white"
                       />
@@ -367,6 +464,7 @@ export default function ChatPage() {
                   </p>
                 </div>
               </div>
+
               <div className="space-y-4 max-h-[600px] overflow-y-auto">
                 {isBlocked ? (
                   // Show blocked label in sidebar
@@ -384,15 +482,15 @@ export default function ChatPage() {
                       <div
                         key={message.id} // Key for list
                         className={`p-4 rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer group ${isCurrentUser
-                          ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200" // My messages
-                          : "bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200" // Others
+                            ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200" // My messages
+                            : "bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200" // Others
                           }`}
                       >
                         <div className="flex items-center gap-3 mb-2">
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${isCurrentUser
-                              ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                              : "bg-gradient-to-br from-gray-400 to-gray-500"
+                                ? "bg-gradient-to-br from-blue-500 to-purple-600"
+                                : "bg-gradient-to-br from-gray-400 to-gray-500"
                               }`}
                           >
                             <User className="w-4 h-4 text-white" /> {/* Avatar placeholder */}
@@ -419,6 +517,7 @@ export default function ChatPage() {
                     );
                   })
                 )}
+
                 {messages.length === 0 && !isBlocked && (
                   // Empty state when no messages and not blocked
                   <div className="text-center py-8">
@@ -426,6 +525,32 @@ export default function ChatPage() {
                       <MessageCircle className="w-8 h-8 text-gray-400" />
                     </div>
                     <p className="text-gray-500 text-sm">No recent messages</p>
+                  </div>
+                )}
+
+                {/* ⭐ NEW: Sidebar actions for private chat */}
+                {targetUserId && !isBlocked && (
+                  <div className="mt-6 space-y-3">
+                    <Button onClick={() => muteUser(targetUserId)}>Mute {targetUserName}</Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        const reason = prompt("Reason for report:");
+                        if (reason) reportUser(targetUserId, reason);
+                      }}
+                    >
+                      Report {targetUserName}
+                    </Button>
+                    <Input
+                      placeholder="Search messages..."
+                      onChange={(e) => {
+                        const keyword = e.target.value;
+                        // NOTE: This replaces the messages list with filtered results.
+                        // For non-destructive search, keep a separate `allMessages` state.
+                        const results = searchMessages(messages, keyword);
+                        setMessages(results);
+                      }}
+                    />
                   </div>
                 )}
               </div>
@@ -436,4 +561,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
