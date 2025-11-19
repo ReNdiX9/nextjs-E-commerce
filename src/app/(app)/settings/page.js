@@ -84,7 +84,7 @@ export default function Settings() {
             {/* Settings Navigation */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Link
-                href="/settings/security"
+                href="/settings/blocked"
                 className="flex items-center gap-3 p-4 border border-card-border rounded-lg hover:bg-card-bg transition-colors"
               >
                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">

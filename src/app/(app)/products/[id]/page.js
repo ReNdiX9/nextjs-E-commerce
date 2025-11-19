@@ -8,7 +8,7 @@ import OfferActionsClient from "@/components/OfferActionsClient";
 import ImageCarousel from "@/components/ImageCarousel";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
-import BlockListingButton from "@/components/BlockListing";
+import BlockListingButton from "@/components/BlockListingButton";
 
 export default function ItemPage() {
   const params = useParams();
@@ -165,7 +165,7 @@ export default function ItemPage() {
               {/*Favorite button*/}
               <FavoriteButton product={product} />
               {/*Block button*/}
-              <BlockListingButton productId={product._id} />
+              <BlockListingButton productId={product._id} sellerId={product.sellerId} />
             </div>
           </div>
         </div>
