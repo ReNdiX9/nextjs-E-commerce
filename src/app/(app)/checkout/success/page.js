@@ -2,9 +2,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { CheckCircle, Package, ArrowRight, Home } from "lucide-react";
+import { CheckCircle, Package, Home } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/app/loading";
 import { Card } from "@/components/ui/card";
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { user, isLoaded } = useUser();
   const sessionId = searchParams.get("session_id");
 
@@ -27,19 +26,18 @@ export default function CheckoutSuccessPage() {
       return;
     }
 
-    // Fetch order details from your API
+    // Fetch order details from your API (optional - don't show error if not found)
     const fetchOrder = async () => {
       try {
         const response = await fetch(`/api/orders/session/${sessionId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch order details");
+        if (response.ok) {
+          const data = await response.json();
+          setOrder(data);
         }
-        const data = await response.json();
-        setOrder(data);
+        // Silently handle errors - order might still be processing via webhook
       } catch (err) {
         console.error("Error fetching order:", err);
-        // Don't show error if order isn't found yet (webhook might still be processing)
-        // Just show success message
+        // Don't show error - just show success message
       } finally {
         setLoading(false);
       }
@@ -70,10 +68,10 @@ export default function CheckoutSuccessPage() {
 
           {/* Success Message */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Payment Successful!
+            Your Order is Placed!
           </h1>
           <p className="text-lg text-gray-600 mb-8">
-            Thank you for your purchase. Your order has been confirmed.
+            Thank you for your purchase. Your order has been confirmed and will be processed shortly.
           </p>
 
           {/* Session ID */}
@@ -123,13 +121,7 @@ export default function CheckoutSuccessPage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/order-history">
-              <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2">
-                View Order History
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+          <div className="flex justify-center">
             <Link href="/">
               <Button
                 variant="outline"
@@ -144,7 +136,7 @@ export default function CheckoutSuccessPage() {
           {/* Help Text */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-500">
-              If you have any questions about your order, please contact us or check your order history.
+              If you have any questions about your order, please contact us.
             </p>
           </div>
         </Card>
