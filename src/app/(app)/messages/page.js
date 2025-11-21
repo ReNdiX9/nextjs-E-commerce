@@ -139,23 +139,23 @@ export default function MessagesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading conversations...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">Loading conversations...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-2">
             Messages
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
             Your conversation inbox
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function MessagesPage() {
         <Card className="p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <Input
                 placeholder="Search conversations..."
                 value={searchTerm}
@@ -225,9 +225,9 @@ export default function MessagesPage() {
         <div className="space-y-4">
           {filteredConversations.length === 0 ? (
             <Card className="p-12 text-center">
-              <MessageCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-bold text-gray-800 mb-2">No conversations yet</h3>
-              <p className="text-gray-600">
+              <MessageCircle className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">No conversations yet</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 {searchTerm ? 'No conversations match your search.' : 'Start chatting with sellers to see your conversations here.'}
               </p>
             </Card>
@@ -246,26 +246,26 @@ export default function MessagesPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors truncate">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                           {conversation.otherUserName}
                         </h3>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                           <Clock className="w-4 h-4" />
                           {conversation.lastMessage.timestamp.toLocaleDateString()}
                         </div>
                       </div>
 
-                      <p className="text-sm text-gray-600 truncate mb-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate mb-2">
                         {conversation.lastMessage.text}
                       </p>
 
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                         <span className="flex items-center gap-1">
                           <MessageCircle className="w-3 h-3" />
                           {conversation.messageCount} messages
                         </span>
                         {conversation.unreadCount > 0 && (
-                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-semibold">
+                          <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full font-semibold">
                             {conversation.unreadCount} new
                           </span>
                         )}
