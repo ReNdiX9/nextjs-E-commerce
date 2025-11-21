@@ -389,6 +389,7 @@ export default function ChatPage() {
                                 onClick={() =>
                                   editMessage(message.id, prompt("Edit message:", message.text) || message.text)
                                 }
+                                className="bg-white/20 hover:bg-white/30 text-white border-white/30 hover:border-white/50"
                               >
                                 Edit
                               </Button>
@@ -396,6 +397,7 @@ export default function ChatPage() {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => deleteMessage(message.id)}
+                                className="bg-red-500/80 hover:bg-red-600/90 text-white border-0"
                               >
                                 Delete
                               </Button>
