@@ -91,8 +91,8 @@ export default function Settings() {
                   🔒
                 </div>
                 <div>
-                  <h3 className="font-medium text-text-primary">Security</h3>
-                  <p className="text-sm text-text-secondary">Update email and password</p>
+                  <h3 className="font-medium text-text-primary">Blocked Items</h3>
+                  <p className="text-sm text-text-secondary">List of items you have blocked</p>
                 </div>
               </Link>
 

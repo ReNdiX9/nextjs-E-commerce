@@ -33,7 +33,7 @@ export default function BlockedProductsList({ products: initialProducts }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-card-border">
+    <div className="overflow-x-auto rounded-lg border border-card-border ">
       <table className="w-full bg-card-bg">
         <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-card-border">
           <tr>
@@ -43,6 +43,9 @@ export default function BlockedProductsList({ products: initialProducts }) {
             </th>
             <th className="px-6 py-4 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
               Product ID
+            </th>
+            <th className="px-6 py-4 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
+              Seller ID
             </th>
             <th className="px-6 py-4 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
               Blocked At
@@ -68,20 +71,18 @@ export default function BlockedProductsList({ products: initialProducts }) {
                   {product.userId}
                 </code>
               </td>
-              {/* sellerId */}
-              <td className="px-6 py-4">
-                <code className="text-xs text-text-secondary bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                  {product.sellerId}
-                </code>
-              </td>
-
               {/* productId */}
               <td className="px-6 py-4">
                 <code className="text-xs text-text-secondary bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                   {product.productId}
                 </code>
               </td>
-
+              {/* sellerId */}
+              <td className="px-6 py-4">
+                <code className="text-xs text-text-secondary bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                  {product.sellerId || "N/A"}
+                </code>
+              </td>
               {/* blockedAt */}
               <td className="px-6 py-4">
                 <p className="text-sm text-text-secondary">
@@ -112,4 +113,3 @@ export default function BlockedProductsList({ products: initialProducts }) {
     </div>
   );
 }
-//TODO finish diplaying sellerid in the list

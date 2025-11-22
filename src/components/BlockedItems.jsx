@@ -27,8 +27,8 @@ export default async function BlockedItems() {
     );
   }
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen min-w-screen bg-background py-8">
+      <div className=" mx-auto px-8">
         <h1 className="text-3xl font-bold text-text-primary mb-6">Blocked Products</h1>
         <BlockedProductsTable products={products} />
       </div>

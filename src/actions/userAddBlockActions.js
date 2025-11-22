@@ -22,6 +22,7 @@ export async function getBlockedProducts() {
       _id: product._id.toString(),
       userId: product.userId,
       productId: product.productId,
+      sellerId: product.sellerId,
       blockedAt: product.blockedAt,
     }));
 
