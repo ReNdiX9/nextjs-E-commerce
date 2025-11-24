@@ -1,4 +1,4 @@
-//api/webhooks/stripe/route.js
+
 
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -127,26 +127,13 @@ async function handleCheckoutSessionCompleted(session) {
       amount: amount_total / 100, // Convert from cents to dollars
       currency: session.currency || "usd",
       paymentStatus: payment_status || "paid",
-      orderStatus: "completed", // You can add: pending, processing, shipped, delivered, cancelled
-      createdAt: new Date(),
+      orderStatus: "completed", // You can add: pending, processing, shipped,       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     // Insert order into MongoDB
     const orderResult = await ordersCollection.insertOne(order);
     console.log("Order created:", orderResult.insertedId);
-
-    // Optionally mark product as sold (uncomment if you want to hide sold products)
-    // await productsCollection.updateOne(
-    //   { _id: new ObjectId(productId) },
-    //   {
-    //     $set: {
-    //       sold: true,
-    //       soldAt: new Date(),
-    //       soldTo: buyerId,
-    //     },
-    //   }
-    // );
 
     console.log("Order processing completed successfully");
   } catch (error) {
