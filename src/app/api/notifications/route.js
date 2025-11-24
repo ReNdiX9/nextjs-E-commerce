@@ -1,7 +1,9 @@
+// app/api/notifications/route.js
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getCollection } from "@/lib/mongodb";
 
-//POST
+//POST - Create notification
 export async function POST(request) {
   try {
     const { userId } = await auth();
@@ -15,7 +17,8 @@ export async function POST(request) {
     if (!sellerId || !productId || !productTitle || !offerAmount) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
-    //  Getting sender name from users collection
+
+    // Getting sender name from users collection
     const users = await getCollection("users");
     const sender = await users.findOne({ clerkId: userId });
 
@@ -26,7 +29,7 @@ export async function POST(request) {
 
     const notifications = await getCollection("notifications");
     const notification = await notifications.insertOne({
-      userId: sellerId, //seller
+      userId: sellerId, //  seller
       senderId: userId,
       senderName: senderName,
       productId,
@@ -35,6 +38,7 @@ export async function POST(request) {
       read: false,
       createdAt: new Date(),
     });
+
     return NextResponse.json({
       success: true,
       notificationId: notification.insertedId.toString(),
@@ -45,7 +49,7 @@ export async function POST(request) {
   }
 }
 
-//GET to get notifications for the user
+//GET - Get notifications for the logged-in user
 export async function GET(request) {
   try {
     const { userId } = await auth();
