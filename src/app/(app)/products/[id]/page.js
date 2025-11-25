@@ -3,18 +3,22 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
 import ImageCarousel from "@/components/ImageCarousel";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
 import BlockListingButton from "@/components/BlockListingButton";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Loader2 } from "lucide-react";
 
 export default function ItemPage() {
   const params = useParams();
   const router = useRouter();
   const { id: fullId } = params;
   const id = fullId.split("-")[0];
+  const { user, isLoaded } = useUser();
 
   //Products
   const [product, setProduct] = useState(null);
@@ -24,6 +28,8 @@ export default function ItemPage() {
   const [error, setError] = useState(null);
   //Email
   const [email, showEmail] = useState(false);
+  //Checkout loading
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -56,6 +62,51 @@ export default function ItemPage() {
       } catch (err) {
         console.error("Failed to copy email:", err);
       }
+    }
+  };
+
+  const handleBuyNow = async () => {
+    // Check if user is logged in
+    if (!user) {
+      toast.error("Please sign in to purchase");
+      router.push("/signin");
+      return;
+    }
+
+    // Check if user is trying to buy their own product
+    if (product?.sellerId === user.id || product?.userId === user.id) {
+      toast.error("You cannot buy your own product");
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product._id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error(error.message || "Failed to start checkout. Please try again.");
+      setCheckoutLoading(false);
     }
   };
 
@@ -150,22 +201,47 @@ export default function ItemPage() {
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 items-center pt-4">
-              <OfferActionsClient
-                item={{
-                  id: product._id,
-                  title: product.title,
-                  price: product.price,
-                  image: product.images?.[0],
-                  description: product.description,
-                }}
-                sellerId={product?.sellerId || product?.userId}
-                sellerName={product?.sellerName}
-              />
-              {/*Favorite button*/}
-              <FavoriteButton product={product} />
-              {/*Block button*/}
-              <BlockListingButton productId={product._id} sellerId={product.sellerId} />
+            <div className="flex flex-col gap-3 pt-4">
+              {/* Buy Now Button - Hide only if user is the seller */}
+              {(!user || (product?.sellerId !== user.id && product?.userId !== user.id)) && (
+                <Button
+                  onClick={handleBuyNow}
+                  disabled={checkoutLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-6 text-lg"
+                  size="lg"
+                >
+                  {checkoutLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      Buy Now - ${product.price?.toFixed(2) || "0.00"}
+                    </>
+                  )}
+                </Button>
+              )}
+              
+              {/* Other Actions */}
+              <div className="flex gap-2 items-center">
+                <OfferActionsClient
+                  item={{
+                    id: product._id,
+                    title: product.title,
+                    price: product.price,
+                    image: product.images?.[0],
+                    description: product.description,
+                  }}
+                  sellerId={product?.sellerId || product?.userId}
+                  sellerName={product?.sellerName}
+                />
+                {/*Favorite button*/}
+                <FavoriteButton product={product} />
+                {/*Block button*/}
+                <BlockListingButton productId={product._id} />
+              </div>
             </div>
           </div>
         </div>
