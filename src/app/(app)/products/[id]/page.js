@@ -10,6 +10,8 @@ import ImageCarousel from "@/components/ImageCarousel";
 import Loading from "@/app/loading";
 import { toast } from "react-toastify";
 import BlockListingButton from "@/components/BlockListingButton";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Loader2 } from "lucide-react";
 
 export default function ItemPage() {
   const params = useParams();
@@ -199,22 +201,47 @@ export default function ItemPage() {
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 items-center pt-4">
-              <OfferActionsClient
-                item={{
-                  id: product._id,
-                  title: product.title,
-                  price: product.price,
-                  image: product.images?.[0],
-                  description: product.description,
-                }}
-                sellerId={product?.sellerId || product?.userId}
-                sellerName={product?.sellerName}
-              />
-              {/*Favorite button*/}
-              <FavoriteButton product={product} />
-              {/*Block button*/}
-              <BlockListingButton productId={product._id} />
+            <div className="flex flex-col gap-3 pt-4">
+              {/* Buy Now Button - Hide only if user is the seller */}
+              {(!user || (product?.sellerId !== user.id && product?.userId !== user.id)) && (
+                <Button
+                  onClick={handleBuyNow}
+                  disabled={checkoutLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-6 text-lg"
+                  size="lg"
+                >
+                  {checkoutLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      Buy Now - ${product.price?.toFixed(2) || "0.00"}
+                    </>
+                  )}
+                </Button>
+              )}
+              
+              {/* Other Actions */}
+              <div className="flex gap-2 items-center">
+                <OfferActionsClient
+                  item={{
+                    id: product._id,
+                    title: product.title,
+                    price: product.price,
+                    image: product.images?.[0],
+                    description: product.description,
+                  }}
+                  sellerId={product?.sellerId || product?.userId}
+                  sellerName={product?.sellerName}
+                />
+                {/*Favorite button*/}
+                <FavoriteButton product={product} />
+                {/*Block button*/}
+                <BlockListingButton productId={product._id} />
+              </div>
             </div>
           </div>
         </div>
