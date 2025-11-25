@@ -9,7 +9,36 @@ import { MessageCircle } from "lucide-react";
 export default function OfferActionsClient({ item, sellerId, sellerName }) {
   const [offerOpen, setOfferOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const notify = () => toast.success("Your offer was send successfully!");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  //handleOfferSubmit function
+  const handleOfferSubmit = async (finalPrice) => {
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sellerId: sellerId,
+          productId: item.id,
+          productTitle: item.title,
+          offerAmount: parseFloat(finalPrice),
+        }),
+      });
+      if (!res.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to send notification");
+      }
+      toast.success("Your offer was sent successfully!");
+    } catch (error) {
+      console.error("Error sending offer:", error);
+      toast.error("Failed to send offer. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -34,10 +63,7 @@ export default function OfferActionsClient({ item, sellerId, sellerName }) {
         open={offerOpen}
         onClose={() => setOfferOpen(false)}
         item={item}
-        onSubmit={(finalPrice) => {
-          console.log("Offer sent with price:", finalPrice);
-          notify();
-        }}
+        onSubmit={handleOfferSubmit}
         primaryLabel="Send"
         secondaryLabel="Cancel"
       />

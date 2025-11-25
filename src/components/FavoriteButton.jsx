@@ -76,7 +76,7 @@ export default function FavoriteButton({ product }) {
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || "Failed to add favorite");
+          throw new Error(error.message || error.error || "Failed to add favorite");
         }
       }
     } catch (error) {
