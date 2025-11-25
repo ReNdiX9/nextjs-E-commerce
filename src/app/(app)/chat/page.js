@@ -270,22 +270,22 @@ export default function ChatPage() {
 
   // Render UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header section with title and presence */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-2">
                 {targetUserId ? `Chat with ${targetUserName}` : "Live Chat"} {/* Title varies by mode */}
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
                 {targetUserId ? "Private conversation" : "Connect with other users in real-time"} {/* Subtitle */}
               </p>
             </div>
             <div className="flex items-center space-x-2"> {/* Presence indicator */}
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div> {/* Green dot */}
-              <span className="text-sm text-gray-600">Online</span> {/* Label */}
+              <span className="text-sm text-gray-600 dark:text-gray-300">Online</span> {/* Label */}
             </div>
           </div>
         </div>
@@ -294,9 +294,9 @@ export default function ChatPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main chat window spans two columns */}
           <div className="lg:col-span-2">
-            <Card className="w-full h-[700px] flex flex-col bg-white shadow-2xl border-0 rounded-3xl overflow-hidden">
+            <Card className="w-full h-[700px] flex flex-col bg-white dark:bg-gray-800 shadow-2xl border-0 rounded-3xl overflow-hidden">
               {/* Chat header with icon, titles, and block/unblock button */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex items-center gap-4">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white p-6 flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                   <MessageCircle className="w-6 h-6" /> {/* Chat icon */}
                 </div>
@@ -320,16 +320,16 @@ export default function ChatPage() {
               </div>
 
               {/* Messages area with conditional states */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
                 {isBlocked ? (
                   // Blocked notice replaces message list
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <X className="w-10 h-10 text-red-600" /> {/* Block icon */}
+                      <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <X className="w-10 h-10 text-red-600 dark:text-red-400" /> {/* Block icon */}
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">Conversation Blocked</h3>
-                      <p className="text-gray-600">
+                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Conversation Blocked</h3>
+                      <p className="text-gray-600 dark:text-gray-400">
                         You won't see messages from {targetUserName} until you unblock them. {/* Explanation */}
                       </p>
                     </div>
@@ -338,19 +338,19 @@ export default function ChatPage() {
                   // Loading state while messages load
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-                      <p className="text-gray-600 text-lg">Loading messages...</p>
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent mx-auto mb-4"></div>
+                      <p className="text-gray-600 dark:text-gray-300 text-lg">Loading messages...</p>
                     </div>
                   </div>
                 ) : messages.length === 0 ? (
                   // Empty state when no messages exist
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <MessageCircle className="w-10 h-10 text-blue-600" />
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <MessageCircle className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">No Messages Yet</h3>
-                      <p className="text-gray-600">Be the first to start the conversation!</p>
+                      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">No Messages Yet</h3>
+                      <p className="text-gray-600 dark:text-gray-400">Be the first to start the conversation!</p>
                     </div>
                   </div>
                 ) : (
@@ -364,14 +364,14 @@ export default function ChatPage() {
                       >
                         <div
                           className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${isCurrentUser
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-md" // My messages style
-                              : "bg-white text-gray-900 border border-gray-200 rounded-bl-md" // Other messages style
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white rounded-br-md" // My messages style
+                              : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-bl-md" // Other messages style
                             }`}
                         >
                           <p className="text-sm font-medium leading-relaxed">{message.text}</p> {/* Message text */}
 
                           <div
-                            className={`text-xs mt-2 flex items-center space-x-2 ${isCurrentUser ? "text-blue-100" : "text-gray-500"
+                            className={`text-xs mt-2 flex items-center space-x-2 ${isCurrentUser ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
                               }`}
                           >
                             <span className="font-medium">{message.senderName}</span> {/* Sender name */}
@@ -389,6 +389,7 @@ export default function ChatPage() {
                                 onClick={() =>
                                   editMessage(message.id, prompt("Edit message:", message.text) || message.text)
                                 }
+                                className="bg-white/20 hover:bg-white/30 text-white border-white/30 hover:border-white/50"
                               >
                                 Edit
                               </Button>
@@ -396,6 +397,7 @@ export default function ChatPage() {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => deleteMessage(message.id)}
+                                className="bg-red-500/80 hover:bg-red-600/90 text-white border-0"
                               >
                                 Delete
                               </Button>
@@ -416,10 +418,10 @@ export default function ChatPage() {
               </div>
 
               {/* Input area: disabled when blocked */}
-              <div className="p-6 bg-white border-t border-gray-100">
+              <div className="p-6 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
                 {isBlocked ? (
                   // Show unblock prompt instead of input when blocked
-                  <div className="text-center text-gray-500 py-4">
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-4">
                     You have blocked {targetUserName}. Unblock to continue chatting.
                   </div>
                 ) : (
@@ -434,12 +436,12 @@ export default function ChatPage() {
                         }}
                         onBlur={() => setTypingStatus(false)} // ⭐ NEW: stop typing on blur
                         placeholder="Type your message..." // Placeholder text
-                        className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-0 transition-all duration-300 bg-gray-50 focus:bg-white"
+                        className="w-full px-6 py-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-0 transition-all duration-300 bg-gray-50 dark:bg-gray-700 focus:bg-white dark:focus:bg-gray-700 text-gray-900 dark:text-gray-100"
                       />
                     </div>
                     <Button
                       type="submit" // Submit the form
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-600 text-white px-6 py-4 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
                       disabled={!newMessage.trim()} // Disable if empty
                     >
                       <Send className="w-5 h-5" /> {/* Send icon */}
@@ -452,14 +454,14 @@ export default function ChatPage() {
 
           {/* Sidebar showing recent messages */}
           <div className="lg:col-span-1">
-            <Card className="h-[700px] p-6 bg-white shadow-2xl border-0 rounded-3xl">
+            <Card className="h-[700px] p-6 bg-white dark:bg-gray-800 shadow-2xl border-0 rounded-3xl">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-white" /> {/* User icon */}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-800">Recent Messages</h3> {/* Sidebar title */}
-                  <p className="text-sm text-gray-500">
+                  <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">Recent Messages</h3> {/* Sidebar title */}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {messages.length} message{messages.length !== 1 ? "s" : ""} {/* Count */}
                   </p>
                 </div>
@@ -469,10 +471,10 @@ export default function ChatPage() {
                 {isBlocked ? (
                   // Show blocked label in sidebar
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <X className="w-8 h-8 text-red-500" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <X className="w-8 h-8 text-red-500 dark:text-red-400" />
                     </div>
-                    <p className="text-gray-500 text-sm">Blocked conversation</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Blocked conversation</p>
                   </div>
                 ) : (
                   // Show last 5 messages
@@ -482,8 +484,8 @@ export default function ChatPage() {
                       <div
                         key={message.id} // Key for list
                         className={`p-4 rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer group ${isCurrentUser
-                            ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200" // My messages
-                            : "bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200" // Others
+                            ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200 dark:border-blue-700" // My messages
+                            : "bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600" // Others
                           }`}
                       >
                         <div className="flex items-center gap-3 mb-2">
@@ -496,20 +498,20 @@ export default function ChatPage() {
                             <User className="w-4 h-4 text-white" /> {/* Avatar placeholder */}
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                            <p className="text-sm font-bold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {message.senderName} {/* Sender name */}
                             </p>
                             {isCurrentUser && (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
                                 You {/* Badge for current user */}
                               </span>
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 truncate mb-2 leading-relaxed">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 truncate mb-2 leading-relaxed">
                           {message.text} {/* Preview text */}
                         </p>
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {/* Clock icon */}
                           {formatTime(message.timestamp)} {/* Timestamp */}
                         </p>
@@ -521,10 +523,10 @@ export default function ChatPage() {
                 {messages.length === 0 && !isBlocked && (
                   // Empty state when no messages and not blocked
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <MessageCircle className="w-8 h-8 text-gray-400" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <MessageCircle className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                     </div>
-                    <p className="text-gray-500 text-sm">No recent messages</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No recent messages</p>
                   </div>
                 )}
 
