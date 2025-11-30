@@ -26,7 +26,6 @@ export default function CheckoutSuccessPage() {
       return;
     }
 
-    // Fetch order details from your API (optional - don't show error if not found)
     const fetchOrder = async () => {
       try {
         const response = await fetch(`/api/orders/session/${sessionId}`);
