@@ -81,7 +81,7 @@ export default function ChatPage() {
 
   // Real-time listener: fetch messages and evaluate block status
   useEffect(() => {
-    if (!user || !firebaseReady) return; // Wait for both Clerk and Firebase auth
+    if (!user || !firebaseReady) return; // Wait for both Clerk or Firebase auth
 
     const messagesRef = collection(db, "messages"); // Reference the messages collection
     const q = query(messagesRef, orderBy("timestamp", "asc")); // Sort messages by timestamp ascending
