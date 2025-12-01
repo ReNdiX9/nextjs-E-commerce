@@ -8,6 +8,8 @@ import FavoriteButton from "@/components/FavoriteButton";
 import OfferActionsClient from "@/components/OfferActionsClient";
 import ImageCarousel from "@/components/ImageCarousel";
 import Loading from "@/app/loading";
+import ReviewList from "@/components/ReviewList";
+import ReviewForm from "@/components/ReviewForm";
 import { toast } from "react-toastify";
 import BlockListingButton from "@/components/BlockListingButton";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,9 @@ export default function ItemPage() {
   const [email, showEmail] = useState(false);
   //Checkout loading
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  //Reviews
+  const [reviews, setReviews] = useState([]);
+  const [reviewsMeta, setReviewsMeta] = useState({ average: 0, count: 0 });
 
   useEffect(() => {
     async function fetchProduct() {
@@ -51,8 +56,22 @@ export default function ItemPage() {
 
     if (id) {
       fetchProduct();
+      fetchReviews();
     }
   }, [id]);
+
+  const fetchReviews = async () => {
+    if (!id) return;
+    try {
+      const r = await fetch(`/api/products/${id}/reviews`);
+      if (!r.ok) return;
+      const data = await r.json();
+      setReviews(data.reviews || []);
+      setReviewsMeta(data.meta || { average: 0, count: 0 });
+    } catch (err) {
+      console.error("Failed loading reviews", err);
+    }
+  };
 
   const copyEmail = async () => {
     if (product?.sellerEmail) {
@@ -140,6 +159,14 @@ export default function ItemPage() {
             <div>
               <h1 className="text-3xl font-bold text-text-primary mb-3">{product.title}</h1>
 
+              {/* Rating & Category */}
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-xl font-bold">{(reviewsMeta.average || 0).toFixed(1)}</div>
+                  <div className="text-sm text-text-secondary">({reviewsMeta.count || 0} review{(reviewsMeta.count || 0) !== 1 ? "s" : ""})</div>
+                </div>
+              </div>
+
               {/* Category & Condition */}
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className="px-3 py-1.5 bg-card-bg border border-card-border rounded-full text-sm text-text-secondary capitalizes">
@@ -154,6 +181,12 @@ export default function ItemPage() {
 
               {/* Price */}
               <p className="text-4xl font-bold  mb-4">${product.price?.toFixed(2) || "0.00"}</p>
+            </div>
+
+            {/* Reviews */}
+            <div className="mt-6">
+              <ReviewForm productId={id} onSaved={fetchReviews} />
+              <ReviewList meta={reviewsMeta} reviews={reviews} />
             </div>
 
             {/* Description */}
@@ -223,7 +256,7 @@ export default function ItemPage() {
                   )}
                 </Button>
               )}
-              
+
               {/* Other Actions */}
               <div className="flex gap-2 items-center">
                 <OfferActionsClient
