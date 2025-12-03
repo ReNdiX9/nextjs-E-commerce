@@ -45,7 +45,7 @@ export default function OfferActionsClient({ item, sellerId, sellerName }) {
       <div className="flex gap-4 items-center">
         <button
           onClick={() => setOfferOpen(true)}
-          className="rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 active:translate-y-px hover:scale-103"
+          className="rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 active:translate-y-px hover:scale-103 cursor-pointer"
         >
           Send Offer
         </button>

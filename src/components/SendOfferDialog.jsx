@@ -50,20 +50,22 @@ export default function SendOfferDialog({
         ref={panelRef}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-xl origin-center rounded-2xl border border-white/20 bg-white/95 p-6 shadow-2xl outline-none backdrop-blur  transition-all"
+        className="relative w-full max-w-xl origin-center rounded-2xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-neutral-900/95 p-6 shadow-2xl outline-none backdrop-blur transition-all"
       >
         {/* Header */}
         <div className="mb-4 flex items-start justify-between">
           <div className="space-y-0.5">
-            <h2 id="send-offer-title" className="text-xl font-semibold tracking-tight text-neutral-900">
+            <h2 id="send-offer-title" className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
               Review & Send Offer
             </h2>
-            <p className="text-xs text-neutral-500 font-bold">Confirm details and choose a price.</p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 font-bold">
+              Confirm details and choose a price.
+            </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close dialog"
-            className="rounded-full p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 transition cursor-pointer"
+            className="rounded-full p-2 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-neutral-200 transition cursor-pointer"
           >
             Close
           </button>
@@ -75,17 +77,19 @@ export default function SendOfferDialog({
             <img
               src={item.image}
               alt={item.title}
-              className="h-40 w-40 p-3  rounded-lg border border-neutral-200 object-cover"
+              className="h-40 w-40 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 object-cover"
             />
           )}
           <div className="min-w-0">
-            <h3 className="truncate text-base font-medium text-neutral-900">{item?.title}</h3>
-            <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs text-neutral-700">
+            <h3 className="truncate text-base font-medium text-neutral-900 dark:text-white">{item?.title}</h3>
+            <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-2.5 py-1 text-xs text-neutral-700 dark:text-neutral-300">
               Standard price
               <span className="font-semibold">${Number(item?.price ?? 0).toFixed(2)}</span>
             </div>
             {item?.description && (
-              <p className="mt-2 line-clamp-3 text-sm leading-6 text-neutral-600">{item.description}</p>
+              <p className="mt-2 line-clamp-3 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
+                {item.description}
+              </p>
             )}
           </div>
         </div>
@@ -101,13 +105,13 @@ export default function SendOfferDialog({
               <input
                 type="radio"
                 name="price-mode"
-                className="h-4 w-4 accent-neutral-900"
+                className="h-4 w-4 accent-neutral-900 dark:accent-white"
                 checked={mode === "standard"}
                 onChange={() => setMode("standard")}
               />
               <div className="text-sm">
-                <div className="font-medium text-neutral-900">Use Standard price</div>
-                <div className="text-neutral-600">${Number(item?.price ?? 0).toFixed(2)}</div>
+                <div className="font-medium text-neutral-900 dark:text-white">Use Standard price</div>
+                <div className="text-neutral-600 dark:text-neutral-400">${Number(item?.price ?? 0).toFixed(2)}</div>
               </div>
             </div>
           </label>
@@ -125,15 +129,15 @@ export default function SendOfferDialog({
               <input
                 type="radio"
                 name="price-mode"
-                className="h-4 w-4 accent-neutral-900"
+                className="h-4 w-4 accent-neutral-900 dark:accent-white"
                 checked={mode === "custom"}
                 onChange={() => setMode("custom")}
               />
               <div className="text-sm">
-                <div className="font-medium text-neutral-900">Enter custom price</div>
+                <div className="font-medium text-neutral-900 dark:text-white">Enter custom price</div>
                 <div className="mt-2 flex items-center">
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400">
                       $
                     </span>
                     <input
@@ -148,17 +152,17 @@ export default function SendOfferDialog({
                           setCustomPrice(v);
                         }
                       }}
-                      className={`w-40 rounded-lg border bg-white pl-7 pr-2 py-2 text-sm outline-none transition text-black
+                      className={`w-40 rounded-lg border bg-white dark:bg-neutral-800 pl-7 pr-2 py-2 text-sm outline-none transition text-black dark:text-white
                                  ${
                                    mode === "custom"
-                                     ? "border-neutral-300 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-200"
-                                     : "border-neutral-200 opacity-60 pointer-events-none"
+                                     ? "border-neutral-300 dark:border-neutral-600 focus:border-neutral-500 dark:focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 dark:focus:ring-neutral-700"
+                                     : "border-neutral-200 dark:border-neutral-700 opacity-60 pointer-events-none"
                                  }`}
                     />
                   </div>
                   <span
                     className={`ml-3 text-xs ${
-                      validPrice || mode === "standard" ? "text-transparent" : "text-red-600"
+                      validPrice || mode === "standard" ? "text-transparent" : "text-red-600 dark:text-red-400"
                     }`}
                   >
                     Enter amount
@@ -173,7 +177,7 @@ export default function SendOfferDialog({
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className=" cursor-pointer rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm text-neutral-800 hover:bg-neutral-50"
+            className=" cursor-pointer rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 px-4 py-2 text-sm text-neutral-800 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700"
           >
             {secondaryLabel}
           </button>
@@ -185,7 +189,11 @@ export default function SendOfferDialog({
               onClose?.();
             }}
             className={`rounded-lg px-4 py-2 text-sm text-white transition cursor-pointer
-                        ${validPrice ? "bg-neutral-900 hover:opacity-90" : "bg-neutral-400 "}`}
+                        ${
+                          validPrice
+                            ? "bg-neutral-900 dark:bg-white dark:text-neutral-900 hover:opacity-90"
+                            : "bg-neutral-400 dark:bg-neutral-600"
+                        }`}
           >
             {primaryLabel}
           </button>

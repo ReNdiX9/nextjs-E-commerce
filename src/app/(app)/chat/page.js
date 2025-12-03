@@ -16,16 +16,16 @@ import { db } from "@/lib/firebase";
 
 // Import Firestore functions
 import {
-  collection,      // Reference a collection
-  addDoc,          // Add a document
-  query,           // Build a query
-  orderBy,         // Sort query results
-  onSnapshot,      // Listen to realtime changes
+  collection, // Reference a collection
+  addDoc, // Add a document
+  query, // Build a query
+  orderBy, // Sort query results
+  onSnapshot, // Listen to realtime changes
   serverTimestamp, // Server-side timestamp
-  doc,             // Reference a document
-  setDoc,          // Create/overwrite a document
-  getDoc,          // Read a document once
-  deleteDoc,       // Delete a document
+  doc, // Reference a document
+  setDoc, // Create/overwrite a document
+  getDoc, // Read a document once
+  deleteDoc, // Delete a document
 } from "firebase/firestore";
 
 // Import Clerk user hook
@@ -52,7 +52,7 @@ export default function ChatPage() {
     if (isLoaded && user) {
       // Optional: Ensure Firebase is authenticated
       // Note: Anonymous auth is optional if Firestore rules allow unauthenticated access
-      import('@/lib/firebase').then(async ({ auth, signInAnonymously }) => {
+      import("@/lib/firebase").then(async ({ auth, signInAnonymously }) => {
         try {
           if (auth.currentUser === null) {
             // Try to sign in anonymously, but don't fail if it's not enabled
@@ -60,7 +60,7 @@ export default function ChatPage() {
           }
           setFirebaseReady(true); // Mark Firebase as ready
         } catch (err) {
-          console.warn('Firebase auth failed (this is OK if Anonymous auth is disabled):', err.message);
+          console.warn("Firebase auth failed (this is OK if Anonymous auth is disabled):", err.message);
           // Still mark as ready - permissive Firestore rules allow unauthenticated access
           setFirebaseReady(true);
         }
@@ -87,59 +87,63 @@ export default function ChatPage() {
     const q = query(messagesRef, orderBy("timestamp", "asc")); // Sort messages by timestamp ascending
 
     // Subscribe to realtime updates
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      // Map Firestore docs to JS objects with usable timestamps
-      const messagesData = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id, // Document ID
-        ...docSnap.data(), // Spread document fields
-        timestamp: docSnap.data().timestamp?.toDate() || new Date(), // Convert Firestore timestamp
-      }));
+    const unsubscribe = onSnapshot(
+      q,
+      async (snapshot) => {
+        // Map Firestore docs to JS objects with usable timestamps
+        const messagesData = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id, // Document ID
+          ...docSnap.data(), // Spread document fields
+          timestamp: docSnap.data().timestamp?.toDate() || new Date(), // Convert Firestore timestamp
+        }));
 
-      // Stop loading spinner once we receive data
-      setLoading(false);
+        // Stop loading spinner once we receive data
+        setLoading(false);
 
-      // If chatting privately with a specific user
-      if (targetUserId) {
-        // Only include messages between the current user and target user
-        const conversationMessages = messagesData.filter(
-          (msg) =>
-            (msg.senderId === user.id && msg.recipientId === targetUserId) ||
-            (msg.senderId === targetUserId && msg.recipientId === user.id)
-        );
-
-        // Check if either side has blocked the other
-        const blockFromMe = await getDoc(doc(db, "blockedUsers", `${user.id}_${targetUserId}`)); // I blocked them
-        const blockFromThem = await getDoc(doc(db, "blockedUsers", `${targetUserId}_${user.id}`)); // They blocked me
-
-        // If anyone blocked, mark blocked and clear visible messages
-        if (blockFromMe.exists() || blockFromThem.exists()) {
-          setIsBlocked(true); // Update UI state
-          setMessages([]); // Hide conversation content
-        } else {
-          setIsBlocked(false); // Unblocked state
-          setMessages(conversationMessages); // Show conversation messages
-        }
-
-        // Try to derive the target user's display name from any related message
-        const nameCandidate = messagesData.find(
-          (msg) => msg.senderId === targetUserId || msg.recipientId === targetUserId
-        );
-        if (nameCandidate) {
-          setTargetUserName(
-            nameCandidate.senderId === targetUserId
-              ? nameCandidate.senderName // If they sent it, use their senderName
-              : nameCandidate.recipientName // Otherwise use recipientName
+        // If chatting privately with a specific user
+        if (targetUserId) {
+          // Only include messages between the current user and target user
+          const conversationMessages = messagesData.filter(
+            (msg) =>
+              (msg.senderId === user.id && msg.recipientId === targetUserId) ||
+              (msg.senderId === targetUserId && msg.recipientId === user.id)
           );
+
+          // Check if either side has blocked the other
+          const blockFromMe = await getDoc(doc(db, "blockedUsers", `${user.id}_${targetUserId}`)); // I blocked them
+          const blockFromThem = await getDoc(doc(db, "blockedUsers", `${targetUserId}_${user.id}`)); // They blocked me
+
+          // If anyone blocked, mark blocked and clear visible messages
+          if (blockFromMe.exists() || blockFromThem.exists()) {
+            setIsBlocked(true); // Update UI state
+            setMessages([]); // Hide conversation content
+          } else {
+            setIsBlocked(false); // Unblocked state
+            setMessages(conversationMessages); // Show conversation messages
+          }
+
+          // Try to derive the target user's display name from any related message
+          const nameCandidate = messagesData.find(
+            (msg) => msg.senderId === targetUserId || msg.recipientId === targetUserId
+          );
+          if (nameCandidate) {
+            setTargetUserName(
+              nameCandidate.senderId === targetUserId
+                ? nameCandidate.senderName // If they sent it, use their senderName
+                : nameCandidate.recipientName // Otherwise use recipientName
+            );
+          }
+        } else {
+          // General chat case (no specific recipient) — show all messages
+          setMessages(messagesData);
         }
-      } else {
-        // General chat case (no specific recipient) — show all messages
-        setMessages(messagesData);
+      },
+      (error) => {
+        // Handle Firestore errors
+        console.error("Firestore snapshot error:", error);
+        setLoading(false);
       }
-    }, (error) => {
-      // Handle Firestore errors
-      console.error('Firestore snapshot error:', error);
-      setLoading(false);
-    });
+    );
 
     return () => unsubscribe(); // Clean up the listener on unmount or dependency change
   }, [user, targetUserId, firebaseReady]); // Re-run if user, target, or Firebase auth changes
@@ -163,8 +167,7 @@ export default function ChatPage() {
       await addDoc(collection(db, "messages"), {
         text: newMessage, // Message content
         senderId: user.id, // Current user ID
-        senderName:
-          user.fullName || user.emailAddresses[0]?.emailAddress || "User", // Best-effort display name
+        senderName: user.fullName || user.emailAddresses[0]?.emailAddress || "User", // Best-effort display name
         recipientId: targetUserId || null, // Private recipient or null (general chat)
         recipientName: targetUserName || "Everyone", // Display name of recipient or "Everyone"
         timestamp: serverTimestamp(), // Server-side canonical time
@@ -239,9 +242,7 @@ export default function ChatPage() {
 
   // ⭐ NEW: Client-side search for messages
   const searchMessages = (messagesList, keyword) => {
-    return messagesList.filter((msg) =>
-      msg.text.toLowerCase().includes(keyword.toLowerCase())
-    );
+    return messagesList.filter((msg) => msg.text.toLowerCase().includes(keyword.toLowerCase()));
   };
 
   // ⭐ NEW: Mute the target user (suppress notifications externally)
@@ -283,7 +284,9 @@ export default function ChatPage() {
                 {targetUserId ? "Private conversation" : "Connect with other users in real-time"} {/* Subtitle */}
               </p>
             </div>
-            <div className="flex items-center space-x-2"> {/* Presence indicator */}
+            <div className="flex items-center space-x-2">
+              {" "}
+              {/* Presence indicator */}
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div> {/* Green dot */}
               <span className="text-sm text-gray-600 dark:text-gray-300">Online</span> {/* Label */}
             </div>
@@ -330,7 +333,7 @@ export default function ChatPage() {
                       </div>
                       <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Conversation Blocked</h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        You won't see messages from {targetUserName} until you unblock them. {/* Explanation */}
+                        You won&apos;t see messages from {targetUserName} until you unblock them. {/* Explanation */}
                       </p>
                     </div>
                   </div>
@@ -363,23 +366,23 @@ export default function ChatPage() {
                         className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} animate-fadeIn`} // Align bubble
                       >
                         <div
-                          className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${isCurrentUser
+                          className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
+                            isCurrentUser
                               ? "bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white rounded-br-md" // My messages style
                               : "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-bl-md" // Other messages style
-                            }`}
+                          }`}
                         >
                           <p className="text-sm font-medium leading-relaxed">{message.text}</p> {/* Message text */}
-
                           <div
-                            className={`text-xs mt-2 flex items-center space-x-2 ${isCurrentUser ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
-                              }`}
+                            className={`text-xs mt-2 flex items-center space-x-2 ${
+                              isCurrentUser ? "text-blue-100" : "text-gray-500 dark:text-gray-400"
+                            }`}
                           >
                             <span className="font-medium">{message.senderName}</span> {/* Sender name */}
                             <span>•</span> {/* Separator */}
                             <span>{formatTime(message.timestamp)}</span> {/* Time display */}
                             {message.editedAt && <span>(edited)</span>} {/* ⭐ NEW: show edited flag */}
                           </div>
-
                           {/* ⭐ NEW: Actions for current user's messages */}
                           {isCurrentUser && (
                             <div className="flex gap-2 mt-2">
@@ -403,13 +406,8 @@ export default function ChatPage() {
                               </Button>
                             </div>
                           )}
-
                           {/* ⭐ NEW: Read receipt placeholder (hook up to readReceipts if desired) */}
-                          {isCurrentUser && (
-                            <div className="text-xs mt-1 opacity-80">
-                              Seen ✓✓
-                            </div>
-                          )}
+                          {isCurrentUser && <div className="text-xs mt-1 opacity-80">Seen ✓✓</div>}
                         </div>
                       </div>
                     );
@@ -460,7 +458,8 @@ export default function ChatPage() {
                   <User className="w-5 h-5 text-white" /> {/* User icon */}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">Recent Messages</h3> {/* Sidebar title */}
+                  <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">Recent Messages</h3>{" "}
+                  {/* Sidebar title */}
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {messages.length} message{messages.length !== 1 ? "s" : ""} {/* Count */}
                   </p>
@@ -483,17 +482,19 @@ export default function ChatPage() {
                     return (
                       <div
                         key={message.id} // Key for list
-                        className={`p-4 rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer group ${isCurrentUser
+                        className={`p-4 rounded-2xl hover:shadow-lg transition-all duration-300 cursor-pointer group ${
+                          isCurrentUser
                             ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200 dark:border-blue-700" // My messages
                             : "bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border border-gray-200 dark:border-gray-600" // Others
-                          }`}
+                        }`}
                       >
                         <div className="flex items-center gap-3 mb-2">
                           <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center ${isCurrentUser
+                            className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              isCurrentUser
                                 ? "bg-gradient-to-br from-blue-500 to-purple-600"
                                 : "bg-gradient-to-br from-gray-400 to-gray-500"
-                              }`}
+                            }`}
                           >
                             <User className="w-4 h-4 text-white" /> {/* Avatar placeholder */}
                           </div>

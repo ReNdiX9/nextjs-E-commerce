@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { IoNotifications } from "react-icons/io5";
-import { useRouter } from "next/navigation";
+import { IoCheckmarkDone, IoTrash } from "react-icons/io5";
+import ChatWidget from "./ChatWidget";
 
 export default function Notifications() {
   const { userId } = useAuth();
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatRecipientId, setChatRecipientId] = useState("");
+  const [chatRecipientName, setChatRecipientName] = useState("");
 
   useEffect(() => {
     if (!userId) return;
@@ -26,17 +26,13 @@ export default function Notifications() {
     if (!userId) return;
 
     try {
-      setLoading(true);
       const response = await fetch("/api/notifications");
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
-        setUnreadCount(data.unreadCount);
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -50,98 +46,134 @@ export default function Notifications() {
 
       if (response.ok) {
         setNotifications((prev) => prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n)));
-        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
-  const handleNotificationClick = (notification) => {
-    markAsRead(notification._id);
-    router.push(`/products/${notification.productId}`);
-    setShowDropdown(false);
+  const deleteNotification = async (notificationId) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setNotifications((prev) => prev.filter((n) => n._id !== notificationId));
+      }
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+    }
+  };
+
+  const openChat = (senderId, senderName) => {
+    setChatRecipientId(senderId);
+    setChatRecipientName(senderName);
+    setChatOpen(true);
   };
 
   if (!userId) return null;
 
   return (
-    <div className="sticky top-4 right-4 z-50">
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-text-primary hover:text-blue-600 transition cursor-pointer"
-        aria-label="Notifications"
-      >
-        <IoNotifications size={24} />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
-      </button>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Notifications</h1>
+        </div>
+      </div>
 
-      {showDropdown && (
-        <>
-          {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
-
-          {/* Dropdown */}
-          <div className="absolute right-0 mt-2 w-96 bg-card-bg border border-card-border rounded-lg shadow-xl z-50 max-h-[500px] overflow-y-auto">
-            <div className="p-4 border-b border-card-border flex items-center justify-between sticky top-0 bg-card-bg z-10">
-              <h3 className="font-semibold text-text-primary">Notifications</h3>
-              {unreadCount > 0 && <span className="text-xs text-text-secondary">{unreadCount} unread</span>}
-            </div>
-
-            {loading && notifications.length === 0 ? (
-              // Show spinner only when loading AND no notifications yet
-              <div className="p-8 text-center">
-                <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto" />
-              </div>
-            ) : notifications.length === 0 ? (
-              // Show empty state when NOT loading and no notifications
-              <div className="p-8 text-center">
-                <IoNotifications size={48} className="mx-auto text-text-secondary opacity-30 mb-3" />
-                <p className="text-text-secondary">No notifications yet</p>
-              </div>
-            ) : (
-              // Show notifications list
-              <div>
-                {notifications.map((notification) => (
-                  <div
-                    key={notification._id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`p-4 border-b border-card-border hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer transition-colors ${
-                      !notification.read ? "bg-blue-50 dark:bg-blue-950/20" : ""
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-text-primary mb-1">
-                          New Offer: ${notification.offerAmount.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-text-secondary mb-1">
-                          <span className="font-medium">{notification.senderName}</span> made an offer on{" "}
-                          <span className="font-medium">"{notification.productTitle}"</span>
-                        </p>
-                        <p className="text-xs text-text-secondary mt-2">
-                          {new Date(notification.createdAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                      {!notification.read && <div className="w-2 h-2 bg-blue-600 rounded-full mt-1 flex-shrink-0" />}
+      {notifications.length === 0 ? (
+        // Empty State
+        <div className="p-12 text-center bg-card-bg border border-card-border rounded-lg">
+          <IoNotifications size={64} className="mx-auto text-text-secondary opacity-30 mb-4" />
+          <h3 className="text-lg font-semibold text-text-primary mb-2">No notifications yet</h3>
+          <p className="text-text-secondary">When you receive offers, they'll appear here</p>
+        </div>
+      ) : (
+        // Notifications List
+        <div className="space-y-3">
+          {notifications.map((notification) => (
+            <div
+              key={notification._id}
+              className={`bg-card-bg border border-card-border rounded-lg hover:shadow-md transition-shadow ${
+                !notification.read ? "ring-2 ring-blue-500/20 bg-blue-50 dark:bg-blue-950/20" : ""
+              }`}
+            >
+              <div className="p-5">
+                <div className="flex items-start gap-4">
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-base font-semibold text-text-primary">
+                        New Offer: ${notification.offerAmount.toFixed(2)}
+                      </h3>
+                      {!notification.read && (
+                        <span className="px-2 py-0.5 text-xs font-medium bg-blue-600 text-white rounded-full">New</span>
+                      )}
                     </div>
+                    <p className="text-sm text-text-secondary mb-3">
+                      <span
+                        className="font-medium text-blue-600 hover:underline cursor-pointer"
+                        onClick={() => openChat(notification.senderId, notification.senderName)}
+                        title="Send a message"
+                      >
+                        {notification.senderName}
+                      </span>{" "}
+                      made an offer on{" "}
+                      <span className="font-medium text-text-primary">"{notification.productTitle}"</span>
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {new Date(notification.createdAt).toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   </div>
-                ))}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2">
+                    {!notification.read && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(notification._id);
+                        }}
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition cursor-pointer"
+                        title="Mark as read"
+                        aria-label="Mark as read"
+                      >
+                        <IoCheckmarkDone size={20} />
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(notification._id);
+                      }}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition cursor-pointer"
+                      title="Delete notification"
+                      aria-label="Delete notification"
+                    >
+                      <IoTrash size={20} />
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        </>
+            </div>
+          ))}
+        </div>
       )}
+
+      <ChatWidget
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        recipientId={chatRecipientId}
+        recipientName={chatRecipientName}
+      />
     </div>
   );
 }
-//TODO crate delete brn and check as read, also link to a chat

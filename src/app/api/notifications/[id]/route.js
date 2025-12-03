@@ -6,11 +6,11 @@ import { NextResponse } from "next/server";
 //PATCH method to edit read field
 export async function PATCH(request, { params }) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     //extract id and read field from body
-    const { id } = params;
+    const { id } = await params;
     const { read } = await request.json();
 
     const notifications = await getCollection("notifications");
