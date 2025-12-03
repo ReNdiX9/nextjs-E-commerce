@@ -82,7 +82,7 @@ export default function Settings() {
             <Separator />
 
             {/* Settings Navigation */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link
                 href="/settings/blocked"
                 className="flex items-center gap-3 p-4 border border-card-border rounded-lg hover:bg-card-bg transition-colors"
@@ -93,6 +93,19 @@ export default function Settings() {
                 <div>
                   <h3 className="font-medium text-text-primary">Blocked Items</h3>
                   <p className="text-sm text-text-secondary">List of items you have blocked</p>
+                </div>
+              </Link>
+
+              <Link
+                href={`/settings/notifications`}
+                className="flex items-center gap-3 p-4 border border-card-border rounded-lg hover:bg-card-bg transition-colors"
+              >
+                <div className="w-10 h-10 bg-pink-100 dark:bg-pink-900 rounded-lg flex items-center justify-center">
+                  🔔
+                </div>
+                <div>
+                  <h3 className="font-medium text-text-primary">Notifications</h3>
+                  <p className="text-sm text-text-secondary">Check your notifications here</p>
                 </div>
               </Link>
 
